@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #fafafa; -webkit-font-smoothing: antialiased; }
+  a { color: #2b5fe3; text-decoration: none; }
+  a:hover { color: #1d47b3; }
+  input, button, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+  input:focus, textarea:focus { outline: none; border-color: #2b5fe3; }
+  ::placeholder { color: #a3a3a8; }
+  @keyframes shimmer { 0% { opacity: .55 } 50% { opacity: 1 } 100% { opacity: .55 } }
+</style>
+</helmet>
+
+<div style="min-height:100vh; background:#fafafa; color:#18181a; font-family:'Instrument Sans',Helvetica,Arial,sans-serif; font-size:14px; line-height:1.5; text-wrap:pretty;">
+
+  <div style="position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:20px; padding:0 20px; height:52px; background:#ffffff; border-bottom:1px solid #ebebed;">
+    <div style="display:flex; align-items:center; gap:8px; min-width:170px;">
+      <div style="width:18px; height:18px; border-radius:5px; background:#2b5fe3;"></div>
+      <span style="font-size:13px; font-weight:500;">Network Cards</span>
+    </div>
+    <div style="display:flex; gap:2px; flex:1;">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="6">
+        <button onClick="{{ t.onClick }}" style="border:none; cursor:pointer; padding:6px 10px; border-radius:8px; font-size:13px; background:{{ t.bg }}; color:{{ t.fg }};">{{ t.label }}</button>
+      </sc-for>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span style="font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#a3a3a8; font-family:'IBM Plex Mono',monospace;">состояние</span>
+      <sc-for list="{{ stateToggles }}" as="s" hint-placeholder-count="2">
+        <button onClick="{{ s.onClick }}" style="cursor:pointer; padding:5px 10px; border-radius:8px; font-size:12px; border:1px solid {{ s.border }}; background:{{ s.bg }}; color:{{ s.fg }};">{{ s.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <sc-if value="{{ isCard }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex; justify-content:center; padding:40px 20px 72px;">
+      <div style="width:100%; max-width:420px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#8a8a90;">networkcards.io/{{ slug }}</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#a3a3a8;">420 / 390 px</span>
+        </div>
+
+        <sc-if value="{{ skeleton }}">
+          <div style="background:#ffffff; border:1px solid #ebebed; border-radius:12px; overflow:hidden;">
+            <div style="height:96px; background:#f1f1f3; animation:shimmer 1.4s ease-in-out infinite;"></div>
+            <div style="padding:0 24px 24px;">
+              <div style="width:72px; height:72px; border-radius:50%; background:#ececee; border:3px solid #fff; margin-top:-36px; animation:shimmer 1.4s ease-in-out infinite;"></div>
+              <div style="display:flex; flex-direction:column; gap:10px; margin-top:16px;">
+                <div style="width:52%; height:20px; border-radius:6px; background:#ececee; animation:shimmer 1.4s ease-in-out .1s infinite;"></div>
+                <div style="width:36%; height:13px; border-radius:6px; background:#f1f1f3; animation:shimmer 1.4s ease-in-out .15s infinite;"></div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:8px; margin-top:20px;">
+                <div style="height:12px; border-radius:6px; background:#f4f4f6; animation:shimmer 1.4s ease-in-out .2s infinite;"></div>
+                <div style="height:12px; border-radius:6px; background:#f4f4f6; animation:shimmer 1.4s ease-in-out .25s infinite;"></div>
+                <div style="width:70%; height:12px; border-radius:6px; background:#f4f4f6; animation:shimmer 1.4s ease-in-out .3s infinite;"></div>
+              </div>
+              <div style="display:flex; gap:6px; margin-top:20px;">
+                <div style="width:78px; height:26px; border-radius:8px; background:#f1f1f3; animation:shimmer 1.4s ease-in-out infinite;"></div>
+                <div style="width:64px; height:26px; border-radius:8px; background:#f1f1f3; animation:shimmer 1.4s ease-in-out .1s infinite;"></div>
+                <div style="width:92px; height:26px; border-radius:8px; background:#f1f1f3; animation:shimmer 1.4s ease-in-out .2s infinite;"></div>
+              </div>
+              <div style="display:grid; gap:8px; margin-top:24px;">
+                <div style="height:44px; border-radius:8px; background:#f4f4f6; animation:shimmer 1.4s ease-in-out infinite;"></div>
+                <div style="height:44px; border-radius:8px; background:#f4f4f6; animation:shimmer 1.4s ease-in-out .1s infinite;"></div>
+                <div style="height:44px; border-radius:8px; background:#f4f4f6; animation:shimmer 1.4s ease-in-out .2s infinite;"></div>
+              </div>
+              <div style="height:44px; border-radius:8px; background:#ececee; margin-top:16px; animation:shimmer 1.4s ease-in-out infinite;"></div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ notSkeleton }}" hint-placeholder-val="{{ true }}">
+          <div style="background:#ffffff; border:1px solid #ebebed; border-radius:12px; overflow:hidden;">
+            <div style="height:96px; background:{{ cardBg }};"></div>
+            <div style="padding:0 24px 24px;">
+              <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-top:-36px;">
+                <div style="width:72px; height:72px; border-radius:50%; border:3px solid #ffffff; background:#f1f1f3; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:500; color:#4a4a52;">{{ initials }}</div>
+                <span style="display:inline-flex; align-items:center; gap:6px; height:26px; padding:0 10px; border-radius:8px; background:#ffffff; border:1px solid #ebebed; font-size:12px; color:#6b6b70;">Открыто по QR</span>
+              </div>
+              <div style="margin-top:18px;">
+                <h1 style="margin:0; font-size:22px; font-weight:500; letter-spacing:-.01em;">{{ name }}</h1>
+                <div style="margin-top:4px; font-size:14px; color:#6b6b70;">{{ role }}</div>
+              </div>
+              <p style="margin:16px 0 0; font-size:14px; line-height:1.6; color:#3f3f45;">{{ bio }}</p>
+
+              <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:18px;">
+                <sc-for list="{{ skills }}" as="s" hint-placeholder-count="4">
+                  <span style="padding:5px 10px; border-radius:8px; background:#f2f3f5; color:#4a4d55; font-size:12.5px;">{{ s }}</span>
+                </sc-for>
+              </div>
+
+              <div style="height:1px; background:#f0f0f2; margin:22px 0;"></div>
+
+              <div style="display:grid; gap:8px;">
+                <sc-for list="{{ contactRows }}" as="c" hint-placeholder-count="3">
+                  <div style="display:flex; align-items:center; gap:12px; padding:11px 12px; border:1px solid #ebebed; border-radius:8px; background:#ffffff; cursor:pointer;" style-hover="border-color:#dcdce0; background:#fcfcfd;">
+                    <span style="width:22px; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9a9aa0;">{{ c.tag }}</span>
+                    <span style="flex:1; font-size:13.5px;">{{ c.value }}</span>
+                    <span style="font-size:12px; color:#8a8a90;">{{ c.action }}</span>
+                  </div>
+                </sc-for>
+              </div>
+
+              <sc-if value="{{ showSocial }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex; gap:8px; margin-top:16px;">
+                  <sc-for list="{{ socials }}" as="s" hint-placeholder-count="3">
+                    <span style="width:34px; height:34px; border-radius:50%; border:1px solid #ebebed; display:flex; align-items:center; justify-content:center; font-size:11.5px; color:#5a5a62; cursor:pointer;" style-hover="border-color:#dcdce0;">{{ s }}</span>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ showQr }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex; align-items:center; gap:14px; margin-top:22px; padding:14px; border:1px solid #ebebed; border-radius:12px; background:#fcfcfd;">
+                  <div style="width:76px; height:76px; border-radius:6px; background-color:#ffffff; background-size:cover; background-image:url(&quot;{{ qr }}&quot;);"></div>
+                  <div>
+                    <div style="font-size:13px; font-weight:500;">QR-код визитки</div>
+                    <div style="margin-top:3px; font-size:12.5px; color:#8a8a90;">Наведите камеру, чтобы открыть эту страницу</div>
+                  </div>
+                </div>
+              </sc-if>
+
+              <button style="width:100%; margin-top:18px; height:44px; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:500; color:#ffffff; background:{{ cardBg }};">Сохранить контакт</button>
+              <div style="margin-top:10px; text-align:center; font-size:12px; color:#a3a3a8;">.vcf — добавится в адресную книгу</div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isApp }}">
+    <div style="display:grid; grid-template-columns:200px minmax(0,1fr); min-height:calc(100vh - 52px);">
+      <div style="border-right:1px solid #ebebed; background:#ffffff; padding:16px 12px;">
+        <div style="display:flex; flex-direction:column; gap:2px;">
+          <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="4">
+            <button onClick="{{ n.onClick }}" style="text-align:left; border:none; cursor:pointer; padding:8px 10px; border-radius:8px; font-size:13.5px; background:{{ n.bg }}; color:{{ n.fg }};">{{ n.label }}</button>
+          </sc-for>
+        </div>
+        <div style="margin-top:18px; padding-top:16px; border-top:1px solid #f0f0f2; display:flex; align-items:center; gap:10px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:#f1f1f3; display:flex; align-items:center; justify-content:center; font-size:11.5px; color:#5a5a62;">{{ initials }}</div>
+          <div style="min-width:0;">
+            <div style="font-size:12.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ name }}</div>
+            <div style="font-size:11.5px; color:#a3a3a8;">Личный аккаунт</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:28px 32px 64px;">
+
+        <sc-if value="{{ isDash }}">
+          <div style="max-width:880px;">
+            <h2 style="margin:0 0 2px; font-size:20px; font-weight:500;">Дашборд</h2>
+            <div style="font-size:13.5px; color:#8a8a90;">Состояние визитки и быстрые действия</div>
+
+            <sc-if value="{{ hasCard }}" hint-placeholder-val="{{ true }}">
+              <div style="display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:16px; margin-top:24px;">
+                <div style="background:#ffffff; border:1px solid #ebebed; border-radius:12px; padding:20px;">
+                  <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <span style="display:inline-flex; align-items:center; gap:7px; font-size:12.5px; color:#3f3f45;">
+                      <span style="width:7px; height:7px; border-radius:50%; background:#3f9d6a;"></span>Опубликована
+                    </span>
+                    <span style="font-size:12px; color:#a3a3a8;">обновлено 2 дня назад</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:14px; margin-top:18px;">
+                    <div style="width:44px; height:44px; border-radius:8px; background:{{ cardBg }};"></div>
+                    <div>
+                      <div style="font-size:15px; font-weight:500;">{{ name }}</div>
+                      <div style="font-size:13px; color:#8a8a90;">{{ role }}</div>
+                    </div>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:8px; margin-top:20px;">
+                    <div style="flex:1; display:flex; align-items:center; height:36px; padding:0 12px; border:1px solid #ebebed; border-radius:8px; background:#fcfcfd; font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#5a5a62; overflow:hidden; white-space:nowrap;">networkcards.io/{{ slug }}</div>
+                    <button onClick="{{ copyLink }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid #ebebed; background:#ffffff; cursor:pointer; font-size:13px;" style-hover="border-color:#dcdce0;">{{ copyLabel }}</button>
+                  </div>
+                  <div style="display:flex; gap:8px; margin-top:12px;">
+                    <button onClick="{{ goEditor }}" style="height:36px; padding:0 14px; border:none; border-radius:8px; background:#2b5fe3; color:#ffffff; cursor:pointer; font-size:13px; font-weight:500;">Редактировать</button>
+                    <button onClick="{{ goCard }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid #ebebed; background:#ffffff; cursor:pointer; font-size:13px;" style-hover="border-color:#dcdce0;">Открыть визитку</button>
+                  </div>
+                </div>
+
+                <div style="display:grid; gap:16px; align-content:start;">
+                  <div style="background:#ffffff; border:1px solid #ebebed; border-radius:12px; padding:20px;">
+                    <div style="font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:#a3a3a8; font-family:'IBM Plex Mono',monospace;">Просмотры</div>
+                    <div style="margin-top:8px; font-size:24px; font-weight:500;">1 248</div>
+                    <div style="margin-top:4px; font-size:12.5px; color:#8a8a90;">+64 за последние 7 дней</div>
+                  </div>
+                  <div style="background:#ffffff; border:1px solid #ebebed; border-radius:12px; padding:20px;">
+                    <div style="font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:#a3a3a8; font-family:'IBM Plex Mono',monospace;">Сохранений</div>
+                    <div style="margin-top:8px; font-size:24px; font-weight:500;">86</div>
+                    <div style="margin-top:4px; font-size:12.5px; color:#8a8a90;">6,9% от просмотров</div>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ noCard }}">
+              <div style="margin-top:24px; background:#ffffff; border:1px solid #ebebed; border-radius:12px; padding:56px 24px; text-align:center;">
+                <div style="width:52px; height:52px; margin:0 auto; border-radius:12px; border:1px dashed #dcdce0; background:#fcfcfd;"></div>
+                <div style="margin-top:16px; font-size:15px; font-weight:500;">Визитка ещё не создана</div>
+                <div style="margin:6px auto 0; max-width:340px; font-size:13.5px; color:#8a8a90;">Заполните имя, роль и контакты — ссылку и QR-код можно будет раздать сразу после публикации.</div>
+                <button onClick="{{ goEditor }}" style="margin-top:20px; height:36px; padding:0 16px; border:none; border-radius:8px; background:#2b5fe3; color:#ffffff; cursor:pointer; font-size:13px; font-weight:500;">Создать визитку</button>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isEditor }}">
+          <div style="display:grid; grid-template-columns:minmax(0,1fr) minmax(280px,340px); gap:24px; max-width:1080px;">
+            <div>
+              <h2 style="margin:0 0 2px; font-size:20px; font-weight:500;">Редактор визитки</h2>
+              <div style="font-size:13.5px; color:#8a8a90;">Изменения видны в превью справа</div>
+
+              <div style="margin-top:22px; background:#ffffff; border:1px solid #ebebed; border-radius:12px; padding:20px; display:grid; gap:16px;">
+                <div>
+                  <div style="font-size:12.5px; color:#6b6b70; margin-bottom:6px;">Имя</div>
+                  <input value="{{ name }}" onChange="{{ setName }}" style="width:100%; height:36px; padding:0 12px; border-radius:8px; border:1px solid #e4e4e7; background:#ffffff;">
+                </div>
+                <div>
+                  <div style="font-size:12.5px; color:#6b6b70; margin-bottom:6px;">Роль</div>
+                  <input value="{{ role }}" onChange="{{ setRole }}" style="width:100%; height:36px; padding:0 12px; border-radius:8px; border:1px solid #e4e4e7; background:#ffffff;">
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                  <div>
+                    <div style="font-size:12.5px; color:#6b6b70; margin-bottom:6px;">Email</div>
+                    <input value="{{ email }}" onChange="{{ setEmail }}" style="width:100%; height:36px; padding:0 12px; border-radius:8px; border:1px solid {{ emailBorder }}; background:#ffffff;">
+                    <sc-if value="{{ emailError }}">
+                      <div style="margin-top:6px; font-size:12px; color:#c0392b;">Введите email в формате name@company.com</div>
+                    </sc-if>
+                  </div>
+                  <div>
+                    <div style="font-size:12.5px; color:#6b6b70; margin-bottom:6px;">Телефон</div>
+                    <input value="{{ phone }}" onChange="{{ setPhone }}" style="width:100%; height:36px; padding:0 12px; border-radius:8px; border:1px solid #e4e4e7; background:#ffffff;">
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size:12.5px; color:#6b6b70; margin-bottom:6px;">Сайт</div>
+                  <input value="{{ site }}" onChange="{{ setSite }}" style="width:100%; height:36px; padding:0 12px; border-radius:8px; border:1px solid #e4e4e7; background:#ffffff;">
+                </div>
+                <div>
+                  <div style="font-size:12.5px; color:#6b6b70; margin-bottom:6px;">Био</div>
+                  <textarea onChange="{{ setBio }}" value="{{ bio }}" rows="3" style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid #e4e4e7; background:#ffffff; resize:vertical; line-height:1.55;"></textarea>
+                  <div style="margin-top:6px; font-size:12px; color:#a3a3a8;">{{ bioCount }} / 240</div>
+                </div>
+                <div>
+                  <div style="font-size:12.5px; color:#6b6b70; margin-bottom:6px;">Навыки</div>
+                  <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                    <sc-for list="{{ skillChips }}" as="s" hint-placeholder-count="4">
+                      <span style="display:inline-flex; align-items:center; gap:7px; padding:5px 8px 5px 10px; border-radius:8px; background:#f2f3f5; color:#4a4d55; font-size:12.5px;">{{ s.label }}<button onClick="{{ s.remove }}" style="border:none; background:none; cursor:pointer; padding:0; color:#8a8a90; font-size:13px; line-height:1;">×</button></span>
+                    </sc-for>
+                  </div>
+                  <div style="display:flex; gap:8px; margin-top:10px;">
+                    <input value="{{ draftSkill }}" onChange="{{ setDraftSkill }}" onKeyDown="{{ skillKey }}" placeholder="Добавить навык" style="flex:1; height:36px; padding:0 12px; border-radius:8px; border:1px solid #e4e4e7; background:#ffffff;">
+                    <button onClick="{{ addSkill }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid #ebebed; background:#ffffff; cursor:pointer; font-size:13px;" style-hover="border-color:#dcdce0;">Добавить</button>
+                  </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
+                  <div>
+                    <div style="font-size:12.5px; color:#6b6b70; margin-bottom:6px;">LinkedIn</div>
+                    <input value="in/aleksandrov" style="width:100%; height:36px; padding:0 12px; border-radius:8px; border:1px solid #e4e4e7;">
+                  </div>
+                  <div>
+                    <div style="font-size:12.5px; color:#6b6b70; margin-bottom:6px;">X</div>
+                    <input value="@ilya_a" style="width:100%; height:36px; padding:0 12px; border-radius:8px; border:1px solid #e4e4e7;">
+                  </div>
+                  <div>
+                    <div style="font-size:12.5px; color:#6b6b70; margin-bottom:6px;">GitHub</div>
+                    <input value="ilya-a" style="width:100%; height:36px; padding:0 12px; border-radius:8px; border:1px solid #e4e4e7;">
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size:12.5px; color:#6b6b70; margin-bottom:8px;">Цвет фона карточки</div>
+                  <div style="display:flex; gap:8px;">
+                    <sc-for list="{{ swatches }}" as="s" hint-placeholder-count="6">
+                      <button onClick="{{ s.onClick }}" style="width:30px; height:30px; border-radius:8px; cursor:pointer; background:{{ s.color }}; border:2px solid {{ s.ring }}; box-shadow:0 0 0 1px #ebebed inset;"></button>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:8px; margin-top:16px;">
+                <button style="height:36px; padding:0 16px; border:none; border-radius:8px; background:#2b5fe3; color:#ffffff; cursor:pointer; font-size:13px; font-weight:500;">Сохранить и опубликовать</button>
+                <button style="height:36px; padding:0 14px; border-radius:8px; border:1px solid #ebebed; background:#ffffff; cursor:pointer; font-size:13px;" style-hover="border-color:#dcdce0;">Сохранить черновик</button>
+                <sc-if value="{{ emailError }}">
+                  <span style="font-size:12.5px; color:#c0392b;">1 поле заполнено с ошибкой</span>
+                </sc-if>
+              </div>
+            </div>
+
+            <div>
+              <div style="font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:#a3a3a8; font-family:'IBM Plex Mono',monospace; margin-bottom:12px;">Превью</div>
+              <div style="position:sticky; top:80px; background:#ffffff; border:1px solid #ebebed; border-radius:12px; overflow:hidden;">
+                <div style="height:72px; background:{{ cardBg }};"></div>
+                <div style="padding:0 18px 18px;">
+                  <div style="width:56px; height:56px; margin-top:-28px; border-radius:50%; border:3px solid #ffffff; background:#f1f1f3; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:500; color:#4a4a52;">{{ initials }}</div>
+                  <div style="margin-top:14px; font-size:17px; font-weight:500;">{{ name }}</div>
+                  <div style="margin-top:3px; font-size:13px; color:#6b6b70;">{{ role }}</div>
+                  <p style="margin:12px 0 0; font-size:13px; line-height:1.55; color:#3f3f45;">{{ bio }}</p>
+                  <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:14px;">
+                    <sc-for list="{{ skills }}" as="s" hint-placeholder-count="4">
+                      <span style="padding:4px 9px; border-radius:8px; background:#f2f3f5; color:#4a4d55; font-size:12px;">{{ s }}</span>
+                    </sc-for>
+                  </div>
+                  <div style="display:grid; gap:6px; margin-top:16px;">
+                    <div style="padding:9px 11px; border:1px solid #ebebed; border-radius:8px; font-size:12.5px; color:#3f3f45;">{{ email }}</div>
+                    <div style="padding:9px 11px; border:1px solid #ebebed; border-radius:8px; font-size:12.5px; color:#3f3f45;">{{ phone }}</div>
+                  </div>
+                  <div style="margin-top:14px; height:38px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:500; color:#ffffff; background:{{ cardBg }};">Сохранить контакт</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isContacts }}">
+          <div style="max-width:920px;">
+            <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px;">
+              <div>
+                <h2 style="margin:0 0 2px; font-size:20px; font-weight:500;">Контакты</h2>
+                <div style="font-size:13.5px; color:#8a8a90;">{{ contactsCount }}</div>
+              </div>
+              <button style="height:36px; padding:0 14px; border-radius:8px; border:1px solid #ebebed; background:#ffffff; cursor:pointer; font-size:13px;" style-hover="border-color:#dcdce0;">Экспорт в CSV</button>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:8px; margin-top:20px;">
+              <input value="{{ query }}" onChange="{{ setQuery }}" placeholder="Поиск по имени или компании" style="flex:1; max-width:320px; height:36px; padding:0 12px; border-radius:8px; border:1px solid #e4e4e7; background:#ffffff;">
+              <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                <sc-for list="{{ filters }}" as="f" hint-placeholder-count="4">
+                  <button onClick="{{ f.onClick }}" style="height:30px; padding:0 11px; border-radius:8px; cursor:pointer; font-size:12.5px; border:1px solid {{ f.border }}; background:{{ f.bg }}; color:{{ f.fg }};">{{ f.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+
+            <sc-if value="{{ hasContacts }}" hint-placeholder-val="{{ true }}">
+              <div style="margin-top:16px; background:#ffffff; border:1px solid #ebebed; border-radius:12px; overflow:hidden;">
+                <sc-for list="{{ contacts }}" as="c" hint-placeholder-count="5">
+                  <div style="display:flex; align-items:center; gap:14px; padding:14px 18px; border-top:1px solid #f2f2f4;">
+                    <div style="width:32px; height:32px; border-radius:50%; background:#f2f3f5; display:flex; align-items:center; justify-content:center; font-size:12px; color:#5a5a62;">{{ c.initials }}</div>
+                    <div style="min-width:180px;">
+                      <div style="font-size:13.5px; font-weight:500;">{{ c.name }}</div>
+                      <div style="font-size:12.5px; color:#8a8a90;">{{ c.role }}</div>
+                    </div>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px; flex:1;">
+                      <sc-for list="{{ c.skills }}" as="s" hint-placeholder-count="2">
+                        <span style="padding:3px 8px; border-radius:8px; background:#f2f3f5; color:#4a4d55; font-size:12px;">{{ s }}</span>
+                      </sc-for>
+                    </div>
+                    <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#a3a3a8;">{{ c.date }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ noContacts }}">
+              <div style="margin-top:16px; background:#ffffff; border:1px solid #ebebed; border-radius:12px; padding:56px 24px; text-align:center;">
+                <div style="width:52px; height:52px; margin:0 auto; border-radius:50%; border:1px dashed #dcdce0; background:#fcfcfd;"></div>
+                <div style="margin-top:16px; font-size:15px; font-weight:500;">Пока никого нет</div>
+                <div style="margin:6px auto 0; max-width:360px; font-size:13.5px; color:#8a8a90;">Контакты появятся здесь, когда вы сохраните чью-то визитку — по ссылке или через QR-код.</div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isAnalytics }}">
+          <div style="max-width:880px;">
+            <h2 style="margin:0 0 2px; font-size:20px; font-weight:500;">Аналитика</h2>
+            <div style="font-size:13.5px; color:#8a8a90;">Просмотры публичной визитки</div>
+
+            <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-top:24px;">
+              <div style="background:#ffffff; border:1px solid #ebebed; border-radius:12px; padding:18px;">
+                <div style="font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:#a3a3a8; font-family:'IBM Plex Mono',monospace;">7 дней</div>
+                <div style="margin-top:8px; font-size:24px; font-weight:500;">64</div>
+              </div>
+              <div style="background:#ffffff; border:1px solid #ebebed; border-radius:12px; padding:18px;">
+                <div style="font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:#a3a3a8; font-family:'IBM Plex Mono',monospace;">Всего</div>
+                <div style="margin-top:8px; font-size:24px; font-weight:500;">1 248</div>
+              </div>
+              <div style="background:#ffffff; border:1px solid #ebebed; border-radius:12px; padding:18px;">
+                <div style="font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:#a3a3a8; font-family:'IBM Plex Mono',monospace;">Сохранений</div>
+                <div style="margin-top:8px; font-size:24px; font-weight:500;">86</div>
+              </div>
+            </div>
+
+            <div style="margin-top:16px; background:#ffffff; border:1px solid #ebebed; border-radius:12px; padding:20px;">
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div style="font-size:13.5px; font-weight:500;">Просмотры за 7 дней</div>
+                <div style="font-size:12.5px; color:#a3a3a8;">макс. 16 / день</div>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:12px; align-items:end; height:160px; margin-top:20px;">
+                <div style="display:flex; flex-direction:column; justify-content:flex-end; height:100%; gap:8px;"><div style="height:44%; border-radius:6px; background:#e6ecfb;"></div><div style="text-align:center; font-size:12px; color:#a3a3a8;">Пн</div></div>
+                <div style="display:flex; flex-direction:column; justify-content:flex-end; height:100%; gap:8px;"><div style="height:62%; border-radius:6px; background:#e6ecfb;"></div><div style="text-align:center; font-size:12px; color:#a3a3a8;">Вт</div></div>
+                <div style="display:flex; flex-direction:column; justify-content:flex-end; height:100%; gap:8px;"><div style="height:38%; border-radius:6px; background:#e6ecfb;"></div><div style="text-align:center; font-size:12px; color:#a3a3a8;">Ср</div></div>
+                <div style="display:flex; flex-direction:column; justify-content:flex-end; height:100%; gap:8px;"><div style="height:81%; border-radius:6px; background:#e6ecfb;"></div><div style="text-align:center; font-size:12px; color:#a3a3a8;">Чт</div></div>
+                <div style="display:flex; flex-direction:column; justify-content:flex-end; height:100%; gap:8px;"><div style="height:100%; border-radius:6px; background:#2b5fe3;"></div><div style="text-align:center; font-size:12px; color:#5a5a62;">Пт</div></div>
+                <div style="display:flex; flex-direction:column; justify-content:flex-end; height:100%; gap:8px;"><div style="height:52%; border-radius:6px; background:#e6ecfb;"></div><div style="text-align:center; font-size:12px; color:#a3a3a8;">Сб</div></div>
+                <div style="display:flex; flex-direction:column; justify-content:flex-end; height:100%; gap:8px;"><div style="height:29%; border-radius:6px; background:#e6ecfb;"></div><div style="text-align:center; font-size:12px; color:#a3a3a8;">Вс</div></div>
+              </div>
+            </div>
+
+            <div style="margin-top:16px; background:#ffffff; border:1px solid #ebebed; border-radius:12px; overflow:hidden;">
+              <div style="padding:16px 18px; font-size:13.5px; font-weight:500;">Последние просмотры</div>
+              <sc-for list="{{ views }}" as="v" hint-placeholder-count="5">
+                <div style="display:flex; align-items:center; gap:16px; padding:12px 18px; border-top:1px solid #f2f2f4; font-size:13px;">
+                  <span style="flex:1; color:#3f3f45;">{{ v.source }}</span>
+                  <span style="color:#8a8a90;">{{ v.place }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#a3a3a8; min-width:96px; text-align:right;">{{ v.time }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isAuth }}">
+    <div style="display:flex; justify-content:center; padding:80px 20px;">
+      <div style="width:100%; max-width:340px;">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+          <div style="width:26px; height:26px; border-radius:7px; background:#2b5fe3;"></div>
+          <div style="font-size:16px; font-weight:500;">{{ authTitle }}</div>
+          <div style="font-size:13px; color:#8a8a90; text-align:center;">{{ authSub }}</div>
+        </div>
+        <div style="margin-top:24px; background:#ffffff; border:1px solid #ebebed; border-radius:12px; padding:20px; display:grid; gap:14px;">
+          <sc-if value="{{ isSignup }}">
+            <div>
+              <div style="font-size:12.5px; color:#6b6b70; margin-bottom:6px;">Имя</div>
+              <input placeholder="Илья Александров" style="width:100%; height:36px; padding:0 12px; border-radius:8px; border:1px solid #e4e4e7;">
+            </div>
+          </sc-if>
+          <div>
+            <div style="font-size:12.5px; color:#6b6b70; margin-bottom:6px;">Email</div>
+            <input placeholder="name@company.com" style="width:100%; height:36px; padding:0 12px; border-radius:8px; border:1px solid #e4e4e7;">
+          </div>
+          <div>
+            <div style="font-size:12.5px; color:#6b6b70; margin-bottom:6px;">Пароль</div>
+            <input type="password" placeholder="••••••••" style="width:100%; height:36px; padding:0 12px; border-radius:8px; border:1px solid #e4e4e7;">
+          </div>
+          <button style="height:38px; border:none; border-radius:8px; background:#2b5fe3; color:#ffffff; cursor:pointer; font-size:13.5px; font-weight:500;">{{ authCta }}</button>
+        </div>
+        <div style="margin-top:14px; text-align:center; font-size:13px; color:#8a8a90;">
+          {{ authSwitchText }} <button onClick="{{ toggleAuth }}" style="border:none; background:none; padding:0; cursor:pointer; color:#2b5fe3; font-size:13px;">{{ authSwitchCta }}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;cardColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#2e3a4e&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#2e3a4e&quot;,&quot;#3f6b53&quot;,&quot;#6b4f3f&quot;,&quot;#2b5fe3&quot;],&quot;section&quot;:&quot;Визитка&quot;},&quot;showQr&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Визитка&quot;},&quot;showSocial&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Визитка&quot;}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'card',
+    skeleton: false,
+    hasCard: true,
+    contactsEmpty: false,
+    emailError: false,
+    authMode: 'login',
+    copied: false,
+    filter: 'Все',
+    query: '',
+    name: 'Илья Александров',
+    role: 'Product Designer · Vento',
+    bio: 'Проектирую интерфейсы для финтеха последние семь лет. Сейчас отвечаю за платёжный флоу и дизайн-систему. Открыт к разговорам про исследования и метрики продукта.',
+    email: 'ilya@vento.io',
+    phone: '+7 903 214 88 10',
+    site: 'ventodesign.io',
+    bioText: null,
+    skills: ['Product Design', 'Design Systems', 'Research', 'Figma', 'Fintech'],
+    draftSkill: '',
+    cardBg: null
+  };
+
+  qr() {
+    if (this._qr) return this._qr;
+    const n = 25, c = 8;
+    let seed = 20260902, rects = '';
+    const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+    const finder = (x, y) => {
+      rects += `<rect x="${x*c}" y="${y*c}" width="${7*c}" height="${7*c}" fill="#18181a"/>`;
+      rects += `<rect x="${(x+1)*c}" y="${(y+1)*c}" width="${5*c}" height="${5*c}" fill="#fff"/>`;
+      rects += `<rect x="${(x+2)*c}" y="${(y+2)*c}" width="${3*c}" height="${3*c}" fill="#18181a"/>`;
+    };
+    const inFinder = (x, y) => (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      if (inFinder(x, y)) continue;
+      if (rnd() > 0.52) rects += `<rect x="${x*c}" y="${y*c}" width="${c}" height="${c}" fill="#18181a"/>`;
+    }
+    finder(0, 0); finder(n - 7, 0); finder(0, n - 7);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n*c} ${n*c}"><rect width="100%" height="100%" fill="#fff"/>${rects}</svg>`;
+    this._qr = 'data:image/svg+xml,' + encodeURIComponent(svg);
+    return this._qr;
+  }
+
+  go(screen) { return () => this.setState({ screen }); }
+
+  render_tabs() {
+    const defs = [
+      ['card', 'Публичная визитка'], ['editor', 'Редактор'], ['dash', 'Дашборд'],
+      ['contacts', 'Контакты'], ['analytics', 'Аналитика'], ['auth', 'Логин']
+    ];
+    return defs.map(([id, label]) => ({
+      label, onClick: this.go(id),
+      bg: this.state.screen === id ? '#f2f3f5' : 'transparent',
+      fg: this.state.screen === id ? '#18181a' : '#6b6b70'
+    }));
+  }
+
+  toggles() {
+    const s = this.state, t = [];
+    const mk = (label, on, onClick) => ({
+      label, onClick,
+      bg: on ? '#eef2fd' : '#ffffff',
+      fg: on ? '#2b5fe3' : '#6b6b70',
+      border: on ? '#c9d8fa' : '#ebebed'
+    });
+    if (s.screen === 'card') t.push(mk('Скелетон загрузки', s.skeleton, () => this.setState({ skeleton: !s.skeleton })));
+    if (s.screen === 'dash') t.push(mk('Визитка не создана', !s.hasCard, () => this.setState({ hasCard: !s.hasCard })));
+    if (s.screen === 'editor') t.push(mk('Ошибка валидации', s.emailError, () => this.setState({ emailError: !s.emailError, email: s.emailError ? 'ilya@vento.io' : 'ilya@vento' })));
+    if (s.screen === 'contacts') t.push(mk('Пустой список', s.contactsEmpty, () => this.setState({ contactsEmpty: !s.contactsEmpty })));
+    if (s.screen === 'analytics') t.push({ label: 'нет состояний', onClick: () => {}, bg: '#fcfcfd', fg: '#c0c0c6', border: '#f0f0f2' });
+    if (s.screen === 'auth') t.push(mk(s.authMode === 'login' ? 'Вход' : 'Регистрация', true, () => this.setState({ authMode: s.authMode === 'login' ? 'signup' : 'login' })));
+    return t;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const cardBg = s.cardBg ?? (this.props.cardColor ?? '#2e3a4e');
+    const bio = s.bio;
+    const initials = s.name.split(/\s+/).map(w => w[0]).slice(0, 2).join('');
+    const allContacts = [
+      { name: 'Мария Ковалёва', role: 'Head of Research · Nord', skills: ['Research', 'Fintech'], date: '28 авг', initials: 'МК' },
+      { name: 'Артём Гусев', role: 'Frontend Engineer · Kite', skills: ['React', 'Design Systems'], date: '26 авг', initials: 'АГ' },
+      { name: 'Sofia Marchetti', role: 'Product Manager · Lumen', skills: ['Product Design'], date: '21 авг', initials: 'SM' },
+      { name: 'Даниил Орлов', role: 'Design Lead · Sbertech', skills: ['Design Systems', 'Figma'], date: '19 авг', initials: 'ДО' },
+      { name: 'Nina Bauer', role: 'UX Writer · Fold', skills: ['Research'], date: '12 авг', initials: 'NB' }
+    ];
+    const filterNames = ['Все', 'Design Systems', 'Research', 'Product Design'];
+    let contacts = allContacts;
+    if (s.filter !== 'Все') contacts = contacts.filter(c => c.skills.includes(s.filter));
+    if (s.query.trim()) {
+      const q = s.query.trim().toLowerCase();
+      contacts = contacts.filter(c => (c.name + ' ' + c.role).toLowerCase().includes(q));
+    }
+    if (s.contactsEmpty) contacts = [];
+
+    const swatchColors = ['#2e3a4e', '#3f6b53', '#6b4f3f', '#4b3f6b', '#2b5fe3', '#18181a'];
+
+    const setter = k => e => this.setState({ [k]: e.target.value });
+
+    return {
+      tabs: this.render_tabs(),
+      stateToggles: this.toggles(),
+      navItems: [['dash', 'Дашборд'], ['editor', 'Редактор'], ['contacts', 'Контакты'], ['analytics', 'Аналитика']].map(([id, label]) => ({
+        label, onClick: this.go(id),
+        bg: s.screen === id ? '#f2f3f5' : 'transparent',
+        fg: s.screen === id ? '#18181a' : '#6b6b70'
+      })),
+      isCard: s.screen === 'card',
+      isApp: ['dash', 'editor', 'contacts', 'analytics'].includes(s.screen),
+      isDash: s.screen === 'dash',
+      isEditor: s.screen === 'editor',
+      isContacts: s.screen === 'contacts',
+      isAnalytics: s.screen === 'analytics',
+      isAuth: s.screen === 'auth',
+      skeleton: s.skeleton,
+      notSkeleton: !s.skeleton,
+      hasCard: s.hasCard,
+      noCard: !s.hasCard,
+      slug: 'ilya-a',
+      name: s.name, role: s.role, bio, email: s.email, phone: s.phone, site: s.site,
+      bioCount: bio.length,
+      initials, cardBg,
+      skills: s.skills,
+      skillChips: s.skills.map((label, i) => ({
+        label, remove: () => this.setState(st => ({ skills: st.skills.filter((_, j) => j !== i) }))
+      })),
+      draftSkill: s.draftSkill,
+      setDraftSkill: setter('draftSkill'),
+      addSkill: () => {
+        const v = s.draftSkill.trim();
+        if (!v) return;
+        this.setState(st => ({ skills: st.skills.concat(v), draftSkill: '' }));
+      },
+      skillKey: e => {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        const v = e.target.value.trim();
+        if (v) this.setState(st => ({ skills: st.skills.concat(v), draftSkill: '' }));
+      },
+      setName: setter('name'), setRole: setter('role'), setEmail: setter('email'),
+      setPhone: setter('phone'), setSite: setter('site'), setBio: setter('bio'),
+      setQuery: setter('query'), query: s.query,
+      emailError: s.emailError,
+      emailBorder: s.emailError ? '#d98077' : '#e4e4e7',
+      swatches: swatchColors.map(color => ({
+        color, ring: color === cardBg ? '#2b5fe3' : 'transparent',
+        onClick: () => this.setState({ cardBg: color })
+      })),
+      contactRows: [
+        { tag: '@', value: s.email, action: 'Написать' },
+        { tag: 'tel', value: s.phone, action: 'Позвонить' },
+        { tag: 'www', value: s.site, action: 'Открыть' }
+      ],
+      socials: ['in', 'X', 'gh'],
+      showSocial: this.props.showSocial ?? true,
+      showQr: this.props.showQr ?? true,
+      qr: this.qr(),
+      contacts,
+      hasContacts: contacts.length > 0,
+      noContacts: contacts.length === 0,
+      contactsCount: contacts.length ? contacts.length + ' сохранённых визиток' : 'Нет сохранённых визиток',
+      filters: filterNames.map(label => ({
+        label, onClick: () => this.setState({ filter: label }),
+        bg: s.filter === label ? '#eef2fd' : '#ffffff',
+        fg: s.filter === label ? '#2b5fe3' : '#6b6b70',
+        border: s.filter === label ? '#c9d8fa' : '#ebebed'
+      })),
+      views: [
+        { source: 'QR-код', place: 'Москва, RU', time: '12 мин назад' },
+        { source: 'Прямая ссылка', place: 'Берлин, DE', time: '48 мин назад' },
+        { source: 'LinkedIn', place: 'Милан, IT', time: '2 ч назад' },
+        { source: 'QR-код', place: 'Москва, RU', time: '5 ч назад' },
+        { source: 'Прямая ссылка', place: 'Тбилиси, GE', time: 'вчера' }
+      ],
+      copyLink: () => {
+        this.setState({ copied: true });
+        setTimeout(() => this.setState({ copied: false }), 1600);
+      },
+      copyLabel: s.copied ? 'Скопировано' : 'Копировать',
+      goEditor: this.go('editor'),
+      goCard: this.go('card'),
+      isSignup: s.authMode === 'signup',
+      authTitle: s.authMode === 'login' ? 'Вход в Network Cards' : 'Создать аккаунт',
+      authSub: s.authMode === 'login' ? 'Визитка, ссылка и QR — в одном месте' : 'Визитка будет готова за пару минут',
+      authCta: s.authMode === 'login' ? 'Войти' : 'Зарегистрироваться',
+      authSwitchText: s.authMode === 'login' ? 'Нет аккаунта?' : 'Уже есть аккаунт?',
+      authSwitchCta: s.authMode === 'login' ? 'Регистрация' : 'Войти',
+      toggleAuth: () => this.setState({ authMode: s.authMode === 'login' ? 'signup' : 'login' })
+    };
+  }
+}
+</script>
+</body>
+</html>

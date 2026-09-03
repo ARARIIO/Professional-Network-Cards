@@ -1,0 +1,12 @@
+# Nest / Prisma local artifacts (also covered by the repo root .gitignore)
+node_modules/
+dist/
+coverage/
+src/generated/
+.env
+.env.*
+!.env.example
+*.log
+*.tsbuildinfo
+uploads/
+tmp/

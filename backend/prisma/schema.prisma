@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  card     Card?
+  contacts Contact[]
+  views    CardView[]
+
+  @@map("users")
+}
+
+model Card {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name    String
+  role    String?
+  email   String
+  phone   String?
+  website String?
+  bio     String?
+
+  skills   String[] @default([])
+  linkedin String?
+  github   String?
+  twitter  String?
+
+  avatarUrl       String?
+  backgroundColor String  @default("#2e3a4e")
+
+  slug     String  @unique
+  isPublic Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  views CardView[]
+
+  @@index([userId])
+  @@map("cards")
+}
+
+model Contact {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name    String
+  email   String?
+  phone   String?
+  website String?
+  bio     String?
+  skills  String[] @default([])
+
+  sourceCardId String?
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@map("contacts")
+}
+
+model CardView {
+  id     String @id @default(cuid())
+  cardId String
+  card   Card   @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  ipAddress String?
+  userAgent String?
+  viewedAt  DateTime @default(now())
+
+  @@index([cardId])
+  @@index([userId])
+  @@map("card_views")
+}

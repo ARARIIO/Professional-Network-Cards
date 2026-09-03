@@ -1,0 +1,157 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
+type Card {
+  avatarUrl: String
+  backgroundColor: String!
+  bio: String
+  createdAt: DateTime!
+  email: String!
+  github: String
+  id: ID!
+  isPublic: Boolean!
+  linkedin: String
+  name: String!
+  phone: String
+  role: String
+  skills: [String!]!
+  slug: String!
+  twitter: String
+  updatedAt: DateTime!
+  userId: String!
+  viewsCount: Int!
+  website: String
+}
+
+type CardAnalytics {
+  lastSevenDaysViews: [DayView!]!
+  recentViewers: [RecentViewer!]!
+  totalViews: Int!
+}
+
+type Contact {
+  bio: String
+  createdAt: DateTime!
+  email: String
+  id: ID!
+  name: String!
+  phone: String
+  skills: [String!]!
+  website: String
+}
+
+input CreateCardInput {
+  backgroundColor: String
+  bio: String
+  email: String!
+  github: String
+  isPublic: Boolean
+  linkedin: String
+  name: String!
+  phone: String
+  role: String
+  skills: [String!]
+  twitter: String
+  website: String
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type DayView {
+  count: Int!
+  date: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  createCard(input: CreateCardInput!): Card!
+  deleteCard: Boolean!
+  deleteContact(id: String!): Boolean!
+  login(input: LoginInput!): AuthPayload!
+  logout: Boolean!
+  recordCardView(cardId: String!): Boolean!
+  register(input: RegisterInput!): AuthPayload!
+  saveContact(input: SaveContactInput!): Contact!
+  updateCard(input: UpdateCardInput!): Card!
+}
+
+type PublicCard {
+  avatarUrl: String
+  backgroundColor: String!
+  bio: String
+  email: String!
+  github: String
+  linkedin: String
+  name: String!
+  phone: String
+  role: String
+  skills: [String!]!
+  twitter: String
+  website: String
+}
+
+type Query {
+  cardAnalytics: CardAnalytics!
+  getCard(slug: String!): PublicCard!
+  me: User
+  myCard: Card
+  myContacts(limit: Int, offset: Int): [Contact!]!
+}
+
+type RecentViewer {
+  ipAddress: String
+  userAgent: String
+  viewedAt: DateTime!
+}
+
+input RegisterInput {
+  email: String!
+  name: String!
+  password: String!
+}
+
+input SaveContactInput {
+  bio: String
+  email: String
+  name: String!
+  phone: String
+  skills: [String!]
+  website: String
+}
+
+input UpdateCardInput {
+  avatarUrl: String
+  backgroundColor: String
+  bio: String
+  email: String
+  github: String
+  isPublic: Boolean
+  linkedin: String
+  name: String
+  phone: String
+  role: String
+  skills: [String!]
+  twitter: String
+  website: String
+}
+
+type User {
+  card: Card
+  contactsCount: Int!
+  email: String!
+  id: ID!
+  name: String!
+}
