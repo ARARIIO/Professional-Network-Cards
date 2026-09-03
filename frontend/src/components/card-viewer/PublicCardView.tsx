@@ -77,7 +77,13 @@ export function PublicCardView({
           <div className="card-banner" style={{ background: card.backgroundColor }} />
           <div className="card-inner">
             <div className="card-top">
-              <div className="card-avatar">{initialsFromName(card.name)}</div>
+              <div className="card-avatar">
+                {card.avatarUrl !== null ? (
+                  <img src={card.avatarUrl} alt="" />
+                ) : (
+                  initialsFromName(card.name)
+                )}
+              </div>
               <span className="qr-badge">Открыто по QR</span>
             </div>
             <div className="card-name">

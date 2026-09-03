@@ -8,7 +8,8 @@ export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
-  constructor() {
+    constructor() {
+    // CockroachDB speaks the PostgreSQL protocol; Prisma 7 uses the pg adapter.
     const adapter = new PrismaPg({ connectionString: env('DATABASE_URL') });
     super({ adapter });
   }

@@ -3,66 +3,75 @@ CREATE SCHEMA IF NOT EXISTS "public";
 
 -- CreateTable
 CREATE TABLE "users" (
-    "id" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
+    "id" STRING NOT NULL,
+    "email" STRING NOT NULL,
+    "password" STRING NOT NULL,
+    "name" STRING NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
 
+ALTER TABLE "users" SET (schema_locked = false);
+
 -- CreateTable
 CREATE TABLE "cards" (
-    "id" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "phone" TEXT,
-    "website" TEXT,
-    "bio" TEXT,
-    "skills" TEXT[] DEFAULT ARRAY[]::TEXT[],
-    "linkedin" TEXT,
-    "github" TEXT,
-    "twitter" TEXT,
-    "avatarUrl" TEXT,
-    "backgroundColor" TEXT NOT NULL DEFAULT '#0066cc',
-    "slug" TEXT NOT NULL,
-    "isPublic" BOOLEAN NOT NULL DEFAULT true,
+    "id" STRING NOT NULL,
+    "userId" STRING NOT NULL,
+    "name" STRING NOT NULL,
+    "role" STRING,
+    "email" STRING NOT NULL,
+    "phone" STRING,
+    "website" STRING,
+    "bio" STRING,
+    "skills" STRING[] DEFAULT ARRAY[]::STRING[],
+    "linkedin" STRING,
+    "github" STRING,
+    "twitter" STRING,
+    "avatarUrl" STRING,
+    "backgroundColor" STRING NOT NULL DEFAULT '#2e3a4e',
+    "slug" STRING NOT NULL,
+    "isPublic" BOOL NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "cards_pkey" PRIMARY KEY ("id")
 );
 
+ALTER TABLE "cards" SET (schema_locked = false);
+
 -- CreateTable
 CREATE TABLE "contacts" (
-    "id" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "email" TEXT,
-    "phone" TEXT,
-    "website" TEXT,
-    "bio" TEXT,
-    "skills" TEXT[] DEFAULT ARRAY[]::TEXT[],
-    "sourceCardId" TEXT,
+    "id" STRING NOT NULL,
+    "userId" STRING NOT NULL,
+    "name" STRING NOT NULL,
+    "email" STRING,
+    "phone" STRING,
+    "website" STRING,
+    "bio" STRING,
+    "skills" STRING[] DEFAULT ARRAY[]::STRING[],
+    "sourceCardId" STRING,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "contacts_pkey" PRIMARY KEY ("id")
 );
 
+ALTER TABLE "contacts" SET (schema_locked = false);
+
 -- CreateTable
 CREATE TABLE "card_views" (
-    "id" TEXT NOT NULL,
-    "cardId" TEXT NOT NULL,
-    "userId" TEXT,
-    "ipAddress" TEXT,
-    "userAgent" TEXT,
+    "id" STRING NOT NULL,
+    "cardId" STRING NOT NULL,
+    "userId" STRING,
+    "ipAddress" STRING,
+    "userAgent" STRING,
     "viewedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "card_views_pkey" PRIMARY KEY ("id")
 );
+
+ALTER TABLE "card_views" SET (schema_locked = false);
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");

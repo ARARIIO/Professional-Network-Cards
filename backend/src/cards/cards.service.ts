@@ -8,6 +8,7 @@ import {
 } from '../common/nullish.js';
 import type { AuthUser } from '../common/types/auth-user.js';
 import { AnalyticsService } from '../analytics/analytics.service.js';
+import { StorageService } from '../storage/storage.service.js';
 import { CreateCardInput } from './dto/create-card.input.js';
 import { UpdateCardInput } from './dto/update-card.input.js';
 import { Card } from './entities/card.entity.js';
@@ -23,6 +24,7 @@ export class CardsService {
     private readonly cards: CardRepository,
     private readonly slugs: NanoidSlugGenerator,
     private readonly analytics: AnalyticsService,
+    private readonly storage: StorageService,
   ) {}
 
   async toGraphql(record: CardRecord): Promise<Card> {
@@ -43,7 +45,7 @@ export class CardsService {
     card.twitter = record.twitter;
     card.slug = record.slug;
     card.isPublic = record.isPublic;
-    card.viewsCount = await this.analytics.countByCardId(record.id);
+    card.viewsCount = record.viewsCount;
     card.createdAt = record.createdAt;
     card.updatedAt = record.updatedAt;
     return card;
@@ -98,6 +100,7 @@ export class CardsService {
       linkedin: stringOrNull(input.linkedin),
       github: stringOrNull(input.github),
       twitter: stringOrNull(input.twitter),
+      avatarUrl: stringOrNull(input.avatarUrl),
       backgroundColor: color === null ? '#2e3a4e' : color,
       isPublic: published === null ? true : published,
     };
@@ -107,13 +110,16 @@ export class CardsService {
 
   async update(userId: string, input: UpdateCardInput): Promise<Card> {
     const existing = await this.requireOwned(userId);
+    const previousAvatar = existing.avatarUrl;
     const patch = this.toUpdatePatch(input);
     const record = await this.cards.update(existing.id, patch);
+    await this.syncAvatarStorage(userId, previousAvatar, record.avatarUrl);
     return this.toGraphql(record);
   }
 
   async delete(userId: string): Promise<boolean> {
-    await this.requireOwned(userId);
+    const existing = await this.requireOwned(userId);
+    await this.storage.deleteUserAvatars(existing.userId);
     await this.cards.deleteByUserId(userId);
     return true;
   }
@@ -154,6 +160,23 @@ export class CardsService {
     return existing;
   }
 
+  private async syncAvatarStorage(
+    userId: string,
+    previous: string | null,
+    next: string | null,
+  ): Promise<void> {
+    if (previous === next) {
+      return;
+    }
+    if (next === null) {
+      await this.storage.deleteUserAvatars(userId);
+      return;
+    }
+    if (previous !== null) {
+      await this.storage.deleteByPublicUrl(previous);
+    }
+  }
+
   private async createWithSlug(data: {
     userId: string;
     name: string;
@@ -166,6 +189,7 @@ export class CardsService {
     linkedin: string | null;
     github: string | null;
     twitter: string | null;
+    avatarUrl: string | null;
     backgroundColor: string;
     isPublic: boolean;
   }): Promise<CardRecord> {

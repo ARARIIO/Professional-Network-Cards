@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -8,14 +9,16 @@ import {
 } from '../../utils/validators';
 import { initialsFromName } from '../../utils/format';
 import { SkillsInput } from './SkillsInput';
+import { PhotoDropzone } from './PhotoDropzone';
 
 type Props = {
   defaultValues: CardValues;
   onSubmit: (values: CardValues) => Promise<void>;
+  onUploadAvatar: (file: File) => Promise<string>;
   error: string | null;
 };
 
-export function CardForm({ defaultValues, onSubmit, error }: Props) {
+export function CardForm({ defaultValues, onSubmit, onUploadAvatar, error }: Props) {
   const {
     register,
     handleSubmit,
@@ -30,6 +33,8 @@ export function CardForm({ defaultValues, onSubmit, error }: Props) {
   const values = watch();
   const emailInvalid = typeof errors.email?.message === 'string';
   const bio = values.bio;
+  const [uploadBusy, setUploadBusy] = useState(false);
+  const [dropError, setDropError] = useState<string | null>(null);
 
   const save = (isPublic: boolean) =>
     handleSubmit((form) => onSubmit({ ...form, isPublic }));
@@ -40,6 +45,27 @@ export function CardForm({ defaultValues, onSubmit, error }: Props) {
         <h2 className="page-title">Редактор визитки</h2>
         <div className="page-sub">Изменения видны в превью справа</div>
         <form className="panel form-card" onSubmit={save(true)}>
+          <div>
+            <div className="field-label">Фото</div>
+            <PhotoDropzone
+              previewUrl={values.avatarUrl}
+              initials={initialsFromName(values.name)}
+              busy={uploadBusy}
+              onReject={setDropError}
+              onFile={async (file) => {
+                setDropError(null);
+                setUploadBusy(true);
+                try {
+                  const url = await onUploadAvatar(file);
+                  setValue('avatarUrl', url, { shouldDirty: true });
+                } finally {
+                  setUploadBusy(false);
+                }
+              }}
+            />
+            <div className="field-hint">JPEG, PNG или WebP, до 2 МБ</div>
+            {dropError !== null ? <div className="field-error">{dropError}</div> : null}
+          </div>
           <div>
             <div className="field-label">Имя</div>
             <input className="field-input" {...register('name')} />
@@ -145,7 +171,13 @@ export function CardForm({ defaultValues, onSubmit, error }: Props) {
             style={{ background: values.backgroundColor }}
           />
           <div className="preview-body">
-            <div className="preview-avatar">{initialsFromName(values.name)}</div>
+            <div className="preview-avatar">
+              {values.avatarUrl.length > 0 ? (
+                <img src={values.avatarUrl} alt="" />
+              ) : (
+                initialsFromName(values.name)
+              )}
+            </div>
             <div className="preview-name">{values.name}</div>
             <div className="preview-role">{values.role}</div>
             <p className="preview-bio">{values.bio}</p>

@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useCard } from '../hooks/useCard';
 import { emptyToNull } from '../utils/auth';
 import { graphqlErrorMessage } from '../utils/graphql-error';
+import { API_URL } from '../constants';
 import { DEFAULT_CARD_BG, type CardValues } from '../utils/validators';
 
 function defaultsFromUser(
@@ -21,6 +22,7 @@ function defaultsFromUser(
     linkedin: string | null;
     github: string | null;
     twitter: string | null;
+    avatarUrl: string | null;
     backgroundColor: string;
     isPublic: boolean;
   } | null,
@@ -37,6 +39,7 @@ function defaultsFromUser(
       linkedin: '',
       github: '',
       twitter: '',
+      avatarUrl: '',
       backgroundColor: DEFAULT_CARD_BG,
       isPublic: true,
     };
@@ -52,6 +55,7 @@ function defaultsFromUser(
     linkedin: card.linkedin === null ? '' : card.linkedin,
     github: card.github === null ? '' : card.github,
     twitter: card.twitter === null ? '' : card.twitter,
+    avatarUrl: card.avatarUrl === null ? '' : card.avatarUrl,
     backgroundColor: card.backgroundColor,
     isPublic: card.isPublic,
   };
@@ -79,6 +83,7 @@ export function CardEditorPage() {
       linkedin: emptyToNull(values.linkedin),
       github: emptyToNull(values.github),
       twitter: emptyToNull(values.twitter),
+      avatarUrl: emptyToNull(values.avatarUrl),
       backgroundColor: emptyToNull(values.backgroundColor),
       isPublic: values.isPublic,
     };
@@ -86,14 +91,55 @@ export function CardEditorPage() {
       if (card === null) {
         await createCard(payload);
       } else {
-        await updateCard({
-          ...payload,
-          avatarUrl: null,
-        });
+        await updateCard(payload);
       }
     } catch (caught) {
       setError(caught instanceof Error ? graphqlErrorMessage(caught) : 'Не удалось сохранить');
     }
+  };
+
+  const onUploadAvatar = async (file: File): Promise<string> => {
+    setError(null);
+    const body = new FormData();
+    body.append('file', file);
+    const response = await fetch(`${API_URL}/storage/avatar`, {
+      method: 'POST',
+      credentials: 'include',
+      body,
+    });
+    if (!response.ok) {
+      setError('Не удалось загрузить фото');
+      throw new Error('Не удалось загрузить фото');
+    }
+    const payload = await response.json();
+    if (payload === null || typeof payload !== 'object') {
+      throw new Error('Не удалось загрузить фото');
+    }
+    if (!('url' in payload)) {
+      throw new Error('Не удалось загрузить фото');
+    }
+    const url = payload.url;
+    if (typeof url !== 'string' || url.length === 0) {
+      throw new Error('Не удалось загрузить фото');
+    }
+    if (card !== null) {
+      await updateCard({
+        name: card.name,
+        role: card.role,
+        email: card.email,
+        phone: card.phone,
+        website: card.website,
+        bio: card.bio,
+        skills: card.skills,
+        linkedin: card.linkedin,
+        github: card.github,
+        twitter: card.twitter,
+        avatarUrl: url,
+        backgroundColor: card.backgroundColor,
+        isPublic: card.isPublic,
+      });
+    }
+    return url;
   };
 
   return (
@@ -103,6 +149,7 @@ export function CardEditorPage() {
           key={card === null ? 'new' : card.id}
           defaultValues={defaultsFromUser(user.name, user.email, card)}
           onSubmit={onSubmit}
+          onUploadAvatar={onUploadAvatar}
           error={error}
         />
       )}

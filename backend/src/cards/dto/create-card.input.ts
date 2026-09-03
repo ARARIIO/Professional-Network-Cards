@@ -61,4 +61,9 @@ export class CreateCardInput {
   @IsOptional()
   @IsBoolean()
   isPublic: boolean | null;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  @IsString()
+  avatarUrl: string | null;
 }

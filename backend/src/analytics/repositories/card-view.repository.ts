@@ -10,17 +10,26 @@ type ViewDate = {
 export class CardViewRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(data: {
+  async create(data: {
     cardId: string;
     userId: string | null;
     ipAddress: string | null;
     userAgent: string | null;
   }): Promise<CardViewRecord> {
-    return this.prisma.cardView.create({ data });
+    return this.prisma.$transaction(async (tx) => {
+      const row = await tx.cardView.create({ data });
+      await tx.card.update({
+        where: { id: data.cardId },
+        data: { viewsCount: { increment: 1 } },
+      });
+      return row;
+    });
   }
 
-  countByCardId(cardId: string): Promise<number> {
-    return this.prisma.cardView.count({ where: { cardId } });
+  deleteOlderThan(cutoff: Date): Promise<{ count: number }> {
+    return this.prisma.cardView.deleteMany({
+      where: { viewedAt: { lt: cutoff } },
+    });
   }
 
   findRecent(cardId: string, take: number): Promise<CardViewRecord[]> {

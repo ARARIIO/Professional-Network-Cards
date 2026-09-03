@@ -7,14 +7,11 @@ import {
   RecentViewer,
 } from './entities/card-view.entity.js';
 import { CardViewRepository } from './repositories/card-view.repository.js';
+import { viewRetentionCutoff } from './retention.js';
 
 @Injectable()
 export class AnalyticsService {
   constructor(private readonly views: CardViewRepository) {}
-
-  countByCardId(cardId: string): Promise<number> {
-    return this.views.countByCardId(cardId);
-  }
 
   async recordView(
     card: CardRecord,
@@ -31,10 +28,11 @@ export class AnalyticsService {
       ipAddress,
       userAgent,
     });
+    await this.pruneStaleViews();
   }
 
-  async forCard(cardId: string): Promise<CardAnalytics> {
-    const totalViews = await this.views.countByCardId(cardId);
+  async forCard(cardId: string, totalViews: number): Promise<CardAnalytics> {
+    await this.pruneStaleViews();
     const lastSevenDaysViews = await this.lastSevenDays(cardId);
     const recent = await this.views.findRecent(cardId, 20);
     const analytics = new CardAnalytics();
@@ -48,6 +46,10 @@ export class AnalyticsService {
       return viewer;
     });
     return analytics;
+  }
+
+  private pruneStaleViews(): Promise<{ count: number }> {
+    return this.views.deleteOlderThan(viewRetentionCutoff(new Date()));
   }
 
   private async lastSevenDays(cardId: string): Promise<DayView[]> {

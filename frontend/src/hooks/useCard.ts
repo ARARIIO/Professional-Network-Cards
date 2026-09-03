@@ -18,13 +18,12 @@ type CardInput = {
   linkedin: string | null;
   github: string | null;
   twitter: string | null;
+  avatarUrl: string | null;
   backgroundColor: string | null;
   isPublic: boolean | null;
 };
 
-type UpdateInput = CardInput & {
-  avatarUrl: string | null;
-};
+type UpdateInput = CardInput;
 
 export function useCard() {
   const { data, loading, error, refetch } = useQuery<MyCardData>(GET_MY_CARD);

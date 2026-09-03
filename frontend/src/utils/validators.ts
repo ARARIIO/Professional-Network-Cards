@@ -35,6 +35,7 @@ export const cardSchema = z.object({
   linkedin: z.string(),
   github: z.string(),
   twitter: z.string(),
+  avatarUrl: z.string(),
   backgroundColor: z.string(),
   isPublic: z.boolean(),
 });

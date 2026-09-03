@@ -21,6 +21,6 @@ export class AnalyticsResolver {
     if (card === null) {
       throw new BusinessException('Card not found', HttpStatus.NOT_FOUND);
     }
-    return this.analyticsService.forCard(card.id);
+    return this.analyticsService.forCard(card.id, card.viewsCount);
   }
 }

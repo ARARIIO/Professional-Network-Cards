@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "cockroachdb"
 }
 
 model User {
@@ -44,6 +44,7 @@ model Card {
 
   slug     String  @unique
   isPublic Boolean @default(true)
+  viewsCount Int @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -87,5 +88,6 @@ model CardView {
 
   @@index([cardId])
   @@index([userId])
+  @@index([viewedAt])
   @@map("card_views")
 }

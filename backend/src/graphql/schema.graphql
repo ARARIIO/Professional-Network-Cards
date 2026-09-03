@@ -47,6 +47,7 @@ type Contact {
 }
 
 input CreateCardInput {
+  avatarUrl: String
   backgroundColor: String
   bio: String
   email: String!

@@ -9,6 +9,7 @@ import { graphqlConfig } from './config/graphql.config.js';
 import { ContactsModule } from './contacts/contacts.module.js';
 import { PrismaModule } from './database/prisma.module.js';
 import { UsersModule } from './users/users.module.js';
+import { StorageModule } from './storage/storage.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 
@@ -25,6 +26,7 @@ import { AppService } from './app.service.js';
     CardsModule,
     ContactsModule,
     AnalyticsModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
