@@ -9,6 +9,7 @@ type AnalyticsData = {
 export function useAnalytics(skip = false) {
   const { data, loading, error } = useQuery<AnalyticsData>(GET_CARD_ANALYTICS, {
     skip,
+    fetchPolicy: 'network-only',
   });
 
   const analytics =

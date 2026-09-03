@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { initialsFromName } from '../../utils/format';
+import { Avatar } from '../common/Avatar/Avatar';
 import { TopBar } from './TopBar';
 
 type Props = {
@@ -16,10 +16,12 @@ const NAV = [
 ];
 
 export function AppShell({ children }: Props) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const displayName = user === null ? '' : user.name;
   const accountName =
     user !== null && user.card !== null ? user.card.name : displayName;
+  const avatarUrl =
+    user !== null && user.card !== null ? user.card.avatarUrl : null;
 
   return (
     <>
@@ -40,10 +42,22 @@ export function AppShell({ children }: Props) {
             ))}
           </nav>
           <div className="sidebar-account">
-            <div className="avatar-sm">{initialsFromName(accountName)}</div>
-            <div>
+            <Avatar
+              src={avatarUrl}
+              name={accountName}
+              className="avatar-sm"
+              fallbackColor={null}
+            />
+            <div className="sidebar-account-meta">
               <div className="account-name">{accountName}</div>
               <div className="account-sub">Личный аккаунт</div>
+              <button
+                type="button"
+                className="nav-item nav-logout"
+                onClick={() => void logout()}
+              >
+                Выйти
+              </button>
             </div>
           </div>
         </aside>

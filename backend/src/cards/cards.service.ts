@@ -1,8 +1,9 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef, HttpStatus } from '@nestjs/common';
 import type { Card as CardRecord, Prisma } from '../generated/prisma/client.js';
 import { BusinessException } from '../common/exceptions/business.exception.js';
 import {
   booleanOrNull,
+  numberOrNull,
   stringArrayOrNull,
   stringOrNull,
 } from '../common/nullish.js';
@@ -13,10 +14,14 @@ import { CreateCardInput } from './dto/create-card.input.js';
 import { UpdateCardInput } from './dto/update-card.input.js';
 import { Card } from './entities/card.entity.js';
 import { PublicCard } from './entities/public-card.entity.js';
+import { PublicCardHit } from './entities/public-card-hit.entity.js';
 import { CardRepository } from './repositories/card.repository.js';
 import { NanoidSlugGenerator } from './strategies/slug-generator.strategy.js';
+import { ContactRepository } from '../contacts/repositories/contact.repository.js';
+import { ContactsService } from '../contacts/contacts.service.js';
 
 const SLUG_ATTEMPTS = 5;
+const SEARCH_MAX = 20;
 
 @Injectable()
 export class CardsService {
@@ -25,6 +30,9 @@ export class CardsService {
     private readonly slugs: NanoidSlugGenerator,
     private readonly analytics: AnalyticsService,
     private readonly storage: StorageService,
+    private readonly contacts: ContactRepository,
+    @Inject(forwardRef(() => ContactsService))
+    private readonly contactBook: ContactsService,
   ) {}
 
   async toGraphql(record: CardRecord): Promise<Card> {
@@ -38,7 +46,7 @@ export class CardsService {
     card.website = record.website;
     card.bio = record.bio;
     card.skills = record.skills;
-    card.avatarUrl = record.avatarUrl;
+    card.avatarUrl = this.storage.servedUrl(record.avatarUrl);
     card.backgroundColor = record.backgroundColor;
     card.linkedin = record.linkedin;
     card.github = record.github;
@@ -46,6 +54,7 @@ export class CardsService {
     card.slug = record.slug;
     card.isPublic = record.isPublic;
     card.viewsCount = record.viewsCount;
+    card.savesCount = 0;
     card.createdAt = record.createdAt;
     card.updatedAt = record.updatedAt;
     return card;
@@ -60,12 +69,29 @@ export class CardsService {
     card.website = record.website;
     card.bio = record.bio;
     card.skills = record.skills;
-    card.avatarUrl = record.avatarUrl;
+    card.avatarUrl = this.storage.servedUrl(record.avatarUrl);
     card.backgroundColor = record.backgroundColor;
     card.linkedin = record.linkedin;
     card.github = record.github;
     card.twitter = record.twitter;
     return card;
+  }
+
+  private toHit(
+    record: CardRecord,
+    alreadySaved: boolean,
+    inviteStatus: string,
+  ): PublicCardHit {
+    const hit = new PublicCardHit();
+    hit.slug = record.slug;
+    hit.name = record.name;
+    hit.role = record.role;
+    hit.email = record.email;
+    hit.avatarUrl = this.storage.servedUrl(record.avatarUrl);
+    hit.backgroundColor = record.backgroundColor;
+    hit.alreadySaved = alreadySaved;
+    hit.inviteStatus = inviteStatus;
+    return hit;
   }
 
   async findGraphqlByUserId(userId: string): Promise<Card | null> {
@@ -78,6 +104,36 @@ export class CardsService {
 
   async myCard(userId: string): Promise<Card | null> {
     return this.findGraphqlByUserId(userId);
+  }
+
+  async searchPublic(
+    userId: string,
+    rawQuery: string | null,
+    rawLimit: number | null,
+  ): Promise<PublicCardHit[]> {
+    const query = stringOrNull(rawQuery);
+    let needle: string | null = null;
+    if (query !== null) {
+      const trimmed = query.trim();
+      if (trimmed.length > 0) {
+        needle = trimmed;
+      }
+    }
+    const take = searchLimit(rawLimit);
+    const rows = await this.cards.findPublicExceptUser(userId, needle, take);
+    const ids = rows.map((row) => row.id);
+    const savedRows = await this.contacts.findSourceCardIds(userId, ids);
+    const saved = new Set<string>();
+    for (const row of savedRows) {
+      if (row.sourceCardId !== null) {
+        saved.add(row.sourceCardId);
+      }
+    }
+    const statuses = await this.contactBook.inviteStatusByCardIds(userId, ids);
+    return rows.map((row) => {
+      const status = statuses.get(row.id);
+      return this.toHit(row, saved.has(row.id), typeof status === 'string' ? status : 'none');
+    });
   }
 
   async create(userId: string, input: CreateCardInput): Promise<Card> {
@@ -131,10 +187,17 @@ export class CardsService {
     userAgent: string | null,
   ): Promise<PublicCard> {
     const record = await this.cards.findBySlug(slug);
-    if (record === null || record.isPublic === false) {
+    if (record === null) {
       throw new BusinessException('Card not found', HttpStatus.NOT_FOUND);
     }
-    await this.analytics.recordView(record, viewer, ipAddress, userAgent);
+    const ownerViewing =
+      viewer !== null && viewer.id === record.userId;
+    if (record.isPublic === false && ownerViewing === false) {
+      throw new BusinessException('Card not found', HttpStatus.NOT_FOUND);
+    }
+    if (record.isPublic) {
+      await this.analytics.recordView(record, viewer, ipAddress, userAgent);
+    }
     return this.toPublic(record);
   }
 
@@ -193,7 +256,6 @@ export class CardsService {
     backgroundColor: string;
     isPublic: boolean;
   }): Promise<CardRecord> {
-    let lastError: Error | null = null;
     for (let attempt = 0; attempt < SLUG_ATTEMPTS; attempt += 1) {
       try {
         return await this.cards.create({
@@ -201,15 +263,16 @@ export class CardsService {
           slug: this.slugs.generate(),
         });
       } catch (error) {
-        if (error instanceof Error) {
-          lastError = error;
+        if (typeof error === 'object' && error !== null && isUniqueOn(error, 'userId')) {
+          throw new BusinessException('Card already exists', HttpStatus.CONFLICT);
+        }
+        if (typeof error === 'object' && error !== null && isUniqueOn(error, 'slug')) {
           continue;
         }
         throw new BusinessException('Unable to create card');
       }
     }
-    const message = lastError === null ? 'Unable to create card' : lastError.message;
-    throw new BusinessException(message, HttpStatus.CONFLICT);
+    throw new BusinessException('Unable to create card', HttpStatus.CONFLICT);
   }
 
   private toUpdatePatch(input: UpdateCardInput): Prisma.CardUpdateInput {
@@ -267,4 +330,41 @@ export class CardsService {
     }
     return patch;
   }
+}
+
+function isUniqueOn(error: object, field: string): boolean {
+  if (typeof error !== 'object' || error === null) {
+    return false;
+  }
+  if (!('code' in error) || error.code !== 'P2002') {
+    return false;
+  }
+  if (!('meta' in error) || typeof error.meta !== 'object' || error.meta === null) {
+    return false;
+  }
+  if (!('target' in error.meta)) {
+    return false;
+  }
+  const target = error.meta.target;
+  if (Array.isArray(target)) {
+    return target.includes(field);
+  }
+  if (typeof target === 'string') {
+    return target.includes(field);
+  }
+  return false;
+}
+
+function searchLimit(limit: number | null): number {
+  const value = numberOrNull(limit);
+  if (value === null) {
+    return SEARCH_MAX;
+  }
+  if (value < 1) {
+    return 1;
+  }
+  if (value > SEARCH_MAX) {
+    return SEARCH_MAX;
+  }
+  return Math.floor(value);
 }

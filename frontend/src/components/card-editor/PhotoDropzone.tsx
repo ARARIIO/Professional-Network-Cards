@@ -4,10 +4,11 @@ import {
   avatarFileError,
   firstDroppedFile,
 } from '../../utils/avatar-file';
+import { Avatar } from '../common/Avatar/Avatar';
 
 type Props = {
   previewUrl: string;
-  initials: string;
+  name: string;
   busy: boolean;
   onFile: (file: File) => Promise<void>;
   onReject: (message: string) => void;
@@ -15,7 +16,7 @@ type Props = {
 
 export function PhotoDropzone({
   previewUrl,
-  initials,
+  name,
   busy,
   onFile,
   onReject,
@@ -50,9 +51,12 @@ export function PhotoDropzone({
 
   return (
     <div className="photo-row">
-      <div className="photo-preview">
-        {previewUrl.length > 0 ? <img src={previewUrl} alt="" /> : initials}
-      </div>
+      <Avatar
+        src={previewUrl.length === 0 ? null : previewUrl}
+        name={name}
+        className="photo-preview"
+        fallbackColor={null}
+      />
       <div
         role="button"
         tabIndex={0}

@@ -1,6 +1,6 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
-@ObjectType()
+@ObjectType({ description: 'Saved contact owned by the signed-in user.' })
 export class Contact {
   @Field(() => ID)
   id: string;

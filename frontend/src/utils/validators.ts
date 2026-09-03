@@ -43,3 +43,62 @@ export const cardSchema = z.object({
 export type RegisterValues = z.infer<typeof registerSchema>;
 export type LoginValues = z.infer<typeof loginSchema>;
 export type CardValues = z.infer<typeof cardSchema>;
+
+export function mergeWatchedCardValues(
+  defaults: CardValues,
+  watched: object,
+): CardValues {
+  return {
+    name: readString(watched, 'name', defaults.name),
+    role: readString(watched, 'role', defaults.role),
+    email: readString(watched, 'email', defaults.email),
+    phone: readString(watched, 'phone', defaults.phone),
+    website: readString(watched, 'website', defaults.website),
+    bio: readString(watched, 'bio', defaults.bio),
+    skills: readStringArray(watched, 'skills', defaults.skills),
+    linkedin: readString(watched, 'linkedin', defaults.linkedin),
+    github: readString(watched, 'github', defaults.github),
+    twitter: readString(watched, 'twitter', defaults.twitter),
+    avatarUrl: readString(watched, 'avatarUrl', defaults.avatarUrl),
+    backgroundColor: readString(watched, 'backgroundColor', defaults.backgroundColor),
+    isPublic: readBoolean(watched, 'isPublic', defaults.isPublic),
+  };
+}
+
+function readString(source: object, key: string, fallback: string): string {
+  if (!(key in source)) {
+    return fallback;
+  }
+  const record: Record<string, string> = {};
+  for (const [entryKey, entryValue] of Object.entries(source)) {
+    if (typeof entryValue === 'string') {
+      record[entryKey] = entryValue;
+    }
+  }
+  const value = record[key];
+  return typeof value === 'string' ? value : fallback;
+}
+
+function readStringArray(source: object, key: string, fallback: string[]): string[] {
+  if (!(key in source)) {
+    return fallback;
+  }
+  for (const [entryKey, entryValue] of Object.entries(source)) {
+    if (entryKey === key && Array.isArray(entryValue)) {
+      return entryValue.filter((item) => typeof item === 'string');
+    }
+  }
+  return fallback;
+}
+
+function readBoolean(source: object, key: string, fallback: boolean): boolean {
+  if (!(key in source)) {
+    return fallback;
+  }
+  for (const [entryKey, entryValue] of Object.entries(source)) {
+    if (entryKey === key && typeof entryValue === 'boolean') {
+      return entryValue;
+    }
+  }
+  return fallback;
+}

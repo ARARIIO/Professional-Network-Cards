@@ -1,7 +1,9 @@
 import { useMutation, useQuery } from '@apollo/client/react';
 import { GET_MY_CARD } from '../graphql/queries/getMyCard';
+import { GET_ME } from '../graphql/queries/getMe';
 import { CREATE_CARD, DELETE_CARD, UPDATE_CARD } from '../graphql/mutations/createCard';
 import type { Card } from '../graphql/types';
+import { useAuth } from './useAuth';
 
 type MyCardData = {
   myCard: Card | null;
@@ -26,7 +28,11 @@ type CardInput = {
 type UpdateInput = CardInput;
 
 export function useCard() {
-  const { data, loading, error, refetch } = useQuery<MyCardData>(GET_MY_CARD);
+  const { user } = useAuth();
+  const { data, loading, error, refetch } = useQuery<MyCardData>(GET_MY_CARD, {
+    skip: user === null,
+    fetchPolicy: 'network-only',
+  });
   const [createCard, createState] = useMutation<{ createCard: Card }>(CREATE_CARD);
   const [updateCard, updateState] = useMutation<{ updateCard: Card }>(UPDATE_CARD);
   const [deleteCard, deleteState] = useMutation<{ deleteCard: boolean }>(DELETE_CARD);
@@ -39,15 +45,15 @@ export function useCard() {
     errorMessage: error === null || typeof error !== 'object' ? null : error.message,
     refetch,
     createCard: async (input: CardInput) => {
-      await createCard({ variables: { input } });
+      await createCard({ variables: { input }, refetchQueries: [{ query: GET_ME }] });
       await refetch();
     },
     updateCard: async (input: UpdateInput) => {
-      await updateCard({ variables: { input } });
+      await updateCard({ variables: { input }, refetchQueries: [{ query: GET_ME }] });
       await refetch();
     },
     deleteCard: async () => {
-      await deleteCard();
+      await deleteCard({ refetchQueries: [{ query: GET_ME }] });
       await refetch();
     },
     saving: createState.loading || updateState.loading || deleteState.loading,

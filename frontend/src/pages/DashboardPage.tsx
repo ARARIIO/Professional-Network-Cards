@@ -1,35 +1,37 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AppShell } from '../components/layout/AppShell';
-import { useAuth } from '../hooks/useAuth';
+import { Avatar } from '../components/common/Avatar/Avatar';
 import { useCard } from '../hooks/useCard';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { formatCount, formatUpdated } from '../utils/format';
 
 export function DashboardPage() {
-  const { user } = useAuth();
   const { card, loading } = useCard();
   const { analytics } = useAnalytics(card === null);
   const [copied, setCopied] = useState(false);
 
-  const saves = user === null ? 0 : user.contactsCount;
   const publicUrl =
     card === null ? '' : `${window.location.origin}/c/${card.slug}`;
   const week =
     analytics === null
       ? 0
       : analytics.lastSevenDaysViews.reduce((sum, day) => sum + day.count, 0);
-
-  const copyLink = async () => {
-    await navigator.clipboard.writeText(publicUrl);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1600);
-  };
-
+  const saves = card === null ? 0 : card.savesCount;
   const saveRate =
     card === null || card.viewsCount === 0
       ? '0% от просмотров'
       : `${((saves / card.viewsCount) * 100).toFixed(1).replace('.', ',')}% от просмотров`;
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(publicUrl);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      setCopied(false);
+    }
+  };
 
   return (
     <AppShell>
@@ -41,7 +43,7 @@ export function DashboardPage() {
             <div className="empty-icon" />
             <div className="empty-title">Визитка ещё не создана</div>
             <div className="empty-text">
-              Заполните имя, роль и контакты — ссылку и QR-код можно будет раздать
+              Заполните имя, роль и контакты — ссылку можно будет раздать
               сразу после публикации.
             </div>
             <Link
@@ -68,9 +70,11 @@ export function DashboardPage() {
                 <span className="muted-xs">{formatUpdated(card.updatedAt)}</span>
               </div>
               <div className="person-row">
-                <div
-                  className="swatch-lg"
-                  style={{ background: card.backgroundColor }}
+                <Avatar
+                  src={card.avatarUrl}
+                  name={card.name}
+                  className="dash-avatar"
+                  fallbackColor={card.backgroundColor}
                 />
                 <div>
                   <div className="person-name">{card.name}</div>
@@ -99,10 +103,12 @@ export function DashboardPage() {
                 </Link>
                 <Link
                   to={`/c/${card.slug}`}
+                  target="_blank"
+                  rel="noreferrer"
                   className="ghost-btn"
                   style={{ display: 'inline-flex', alignItems: 'center' }}
                 >
-                  Открыть визитку
+                  {card.isPublic ? 'Открыть визитку' : 'Открыть превью'}
                 </Link>
               </div>
             </div>

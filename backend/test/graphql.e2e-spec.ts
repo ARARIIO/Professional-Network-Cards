@@ -102,7 +102,7 @@ describe('GraphQL API (e2e)', () => {
       `mutation Login($input: LoginInput!) {
         login(input: $input) { token user { email } }
       }`,
-      { input: { email, password } },
+      { input: { email: email.toUpperCase(), password } },
       null,
     );
     token = dataField<{ token: string }>(loggedIn.body, 'login').token;
@@ -124,7 +124,7 @@ describe('GraphQL API (e2e)', () => {
       app,
       `mutation CreateCard($input: CreateCardInput!) {
         createCard(input: $input) {
-          id slug name email skills isPublic viewsCount
+          id slug name email skills isPublic viewsCount savesCount
         }
       }`,
       {
@@ -146,6 +146,9 @@ describe('GraphQL API (e2e)', () => {
     );
     expect(card.slug.length).toBe(12);
     expect(card.viewsCount).toBe(0);
+    expect(
+      dataField<{ savesCount: number }>(created.body, 'createCard').savesCount,
+    ).toBe(0);
 
     const again = await graphql(
       app,
@@ -226,6 +229,245 @@ describe('GraphQL API (e2e)', () => {
     );
     const contact = dataField<{ id: string }>(saved.body, 'saveContact');
 
+    const savedAgain = await graphql(
+      app,
+      `mutation Save($input: SaveContactInput!) {
+        saveContact(input: $input) { id }
+      }`,
+      {
+        input: {
+          name: 'Saved Person',
+          email: 'saved@pnc.test',
+          skills: ['Go'],
+        },
+      },
+      token,
+    );
+    expect(dataField<{ id: string }>(savedAgain.body, 'saveContact').id).toBe(
+      contact.id,
+    );
+
+    const ownSave = await graphql(
+      app,
+      `mutation Save($input: SaveContactInput!) {
+        saveContact(input: $input) { id }
+      }`,
+      {
+        input: {
+          name: 'E2E User',
+          email,
+          sourceSlug: card.slug,
+        },
+      },
+      token,
+    );
+    expect(ownSave.body.errors !== null && ownSave.body.errors.length > 0).toBe(
+      true,
+    );
+
+    const otherEmail = `e2e-other-${stamp}@pnc.test`;
+    const otherAuth = await graphql(
+      app,
+      `mutation Register($input: RegisterInput!) {
+        register(input: $input) { token }
+      }`,
+      { input: { email: otherEmail, password, name: 'Other' } },
+      null,
+    );
+    const otherToken = dataField<{ token: string }>(
+      otherAuth.body,
+      'register',
+    ).token;
+    const directory = await graphql(
+      app,
+      `query Search($query: String) {
+        searchPublicCards(query: $query, limit: 20) {
+          slug name alreadySaved
+        }
+      }`,
+      { query: null },
+      otherToken,
+    );
+    const hits = dataField<Array<{ slug: string; alreadySaved: boolean }>>(
+      directory.body,
+      'searchPublicCards',
+    );
+    expect(hits.some((hit) => hit.slug === card.slug && hit.alreadySaved === false)).toBe(
+      true,
+    );
+    const named = await graphql(
+      app,
+      `query Search($query: String) {
+        searchPublicCards(query: $query) { slug }
+      }`,
+      { query: 'E2E User' },
+      otherToken,
+    );
+    expect(
+      dataField<Array<{ slug: string }>>(named.body, 'searchPublicCards').some(
+        (hit) => hit.slug === card.slug,
+      ),
+    ).toBe(true);
+    const ownDirectory = await graphql(
+      app,
+      `query { searchPublicCards { slug } }`,
+      null,
+      token,
+    );
+    expect(
+      dataField<Array<{ slug: string }>>(ownDirectory.body, 'searchPublicCards').some(
+        (hit) => hit.slug === card.slug,
+      ),
+    ).toBe(false);
+
+    const sourcedBlocked = await graphql(
+      app,
+      `mutation Save($input: SaveContactInput!) {
+        saveContact(input: $input) { id }
+      }`,
+      {
+        input: {
+          name: 'E2E User',
+          email,
+          sourceSlug: card.slug,
+        },
+      },
+      otherToken,
+    );
+    expect(sourcedBlocked.body.errors !== null && sourcedBlocked.body.errors.length > 0).toBe(
+      true,
+    );
+    const invited = await graphql(
+      app,
+      `mutation Invite($slug: String!) { sendContactInvite(sourceSlug: $slug) { id status } }`,
+      { slug: card.slug },
+      otherToken,
+    );
+    const invite = dataField<{ id: string; status: string }>(invited.body, 'sendContactInvite');
+    expect(invite.status).toBe('pending');
+    const invitedAgain = await graphql(
+      app,
+      `mutation Invite($slug: String!) { sendContactInvite(sourceSlug: $slug) { id status } }`,
+      { slug: card.slug },
+      otherToken,
+    );
+    expect(dataField<{ id: string }>(invitedAgain.body, 'sendContactInvite').id).toBe(invite.id);
+    const pendingSearch = await graphql(
+      app,
+      `query Search($query: String) {
+        searchPublicCards(query: $query) { slug alreadySaved inviteStatus }
+      }`,
+      { query: card.slug },
+      otherToken,
+    );
+    expect(
+      dataField<Array<{ slug: string; alreadySaved: boolean; inviteStatus: string }>>(
+        pendingSearch.body,
+        'searchPublicCards',
+      ).some(
+        (hit) =>
+          hit.slug === card.slug && hit.alreadySaved === false && hit.inviteStatus === 'pending',
+      ),
+    ).toBe(true);
+    const inbox = await graphql(
+      app,
+      `query { incomingContactInvites { id fromEmail cardSlug status } }`,
+      null,
+      token,
+    );
+    expect(
+      dataField<Array<{ id: string; status: string }>>(inbox.body, 'incomingContactInvites').some(
+        (row) => row.id === invite.id && row.status === 'pending',
+      ),
+    ).toBe(true);
+    const accepted = await graphql(
+      app,
+      `mutation Respond($id: String!, $accept: Boolean!) {
+        respondContactInvite(id: $id, accept: $accept) { status }
+      }`,
+      { id: invite.id, accept: true },
+      token,
+    );
+    expect(dataField<{ status: string }>(accepted.body, 'respondContactInvite').status).toBe(
+      'accepted',
+    );
+    const savedHit = await graphql(
+      app,
+      `query Search($query: String) {
+        searchPublicCards(query: $query) { slug alreadySaved inviteStatus }
+      }`,
+      { query: card.slug },
+      otherToken,
+    );
+    const savedHits = dataField<Array<{ slug: string; alreadySaved: boolean; inviteStatus: string }>>(
+      savedHit.body,
+      'searchPublicCards',
+    );
+    expect(
+      savedHits.some(
+        (hit) => hit.slug === card.slug && hit.alreadySaved && hit.inviteStatus === 'accepted',
+      ),
+    ).toBe(true);
+    const otherBook = await graphql(
+      app,
+      `query { myContacts(limit: 10, offset: 0) { name email } }`,
+      null,
+      otherToken,
+    );
+    expect(
+      dataField<Array<{ name: string }>>(otherBook.body, 'myContacts').some(
+        (row) => row.name === 'E2E User',
+      ),
+    ).toBe(true);
+    const thirdEmail = `e2e-third-${stamp}@pnc.test`;
+    const thirdAuth = await graphql(
+      app,
+      `mutation Register($input: RegisterInput!) {
+        register(input: $input) { token }
+      }`,
+      { input: { email: thirdEmail, password, name: 'Third' } },
+      null,
+    );
+    const thirdToken = dataField<{ token: string }>(thirdAuth.body, 'register').token;
+    const declinedInvite = await graphql(
+      app,
+      `mutation Invite($slug: String!) { sendContactInvite(sourceSlug: $slug) { id status } }`,
+      { slug: card.slug },
+      thirdToken,
+    );
+    const declinedId = dataField<{ id: string }>(declinedInvite.body, 'sendContactInvite').id;
+    const declined = await graphql(
+      app,
+      `mutation Respond($id: String!, $accept: Boolean!) {
+        respondContactInvite(id: $id, accept: $accept) { status }
+      }`,
+      { id: declinedId, accept: false },
+      token,
+    );
+    expect(dataField<{ status: string }>(declined.body, 'respondContactInvite').status).toBe(
+      'declined',
+    );
+    const thirdBook = await graphql(
+      app,
+      `query { myContacts(limit: 10, offset: 0) { name } }`,
+      null,
+      thirdToken,
+    );
+    expect(
+      dataField<Array<{ name: string }>>(thirdBook.body, 'myContacts').some(
+        (row) => row.name === 'E2E User',
+      ),
+    ).toBe(false);
+    const afterSave = await graphql(
+      app,
+      `query { myCard { savesCount } }`,
+      null,
+      token,
+    );
+    expect(dataField<{ savesCount: number }>(afterSave.body, 'myCard').savesCount).toBe(
+      1,
+    );
+
     const listed = await graphql(
       app,
       `query { myContacts(limit: 10, offset: 0) { id name } }`,
@@ -268,6 +510,13 @@ describe('GraphQL API (e2e)', () => {
     expect(dataField<{ isPublic: boolean }>(hidden.body, 'updateCard').isPublic).toBe(
       false,
     );
+    const ownDraft = await graphql(
+      app,
+      `query GetCard($slug: String!) { getCard(slug: $slug) { name } }`,
+      { slug: card.slug },
+      token,
+    );
+    expect(dataField<{ name: string }>(ownDraft.body, 'getCard').name).toBe('E2E User');
     const missing = await graphql(
       app,
       `query GetCard($slug: String!) { getCard(slug: $slug) { name } }`,
@@ -275,6 +524,19 @@ describe('GraphQL API (e2e)', () => {
       null,
     );
     expect(missing.body.errors !== null).toBe(true);
+    const hiddenSearch = await graphql(
+      app,
+      `query Search($query: String) {
+        searchPublicCards(query: $query) { slug }
+      }`,
+      { query: card.slug },
+      otherToken,
+    );
+    expect(
+      dataField<Array<{ slug: string }>>(hiddenSearch.body, 'searchPublicCards').some(
+        (hit) => hit.slug === card.slug,
+      ),
+    ).toBe(false);
 
     const refresh = await request(app.getHttpServer())
       .post('/auth/refresh')
@@ -285,6 +547,8 @@ describe('GraphQL API (e2e)', () => {
 
     const logout = await graphql(app, `mutation { logout }`, null, token);
     expect(dataField<boolean>(logout.body, 'logout')).toBe(true);
+    const logoutAnon = await graphql(app, `mutation { logout }`, null, null);
+    expect(dataField<boolean>(logoutAnon.body, 'logout')).toBe(true);
 
     await graphql(
       app,

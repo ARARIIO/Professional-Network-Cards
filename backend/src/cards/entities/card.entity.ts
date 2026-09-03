@@ -1,6 +1,6 @@
 import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 
-@ObjectType()
+@ObjectType({ description: 'Owner card. Not returned to other users; public visitors get PublicCard.' })
 export class Card {
   @Field(() => ID)
   id: string;
@@ -52,6 +52,9 @@ export class Card {
 
   @Field(() => Int)
   viewsCount: number;
+
+  @Field(() => Int, { description: 'How many users saved this card from its public page.' })
+  savesCount: number;
 
   @Field(() => Date)
   createdAt: Date;

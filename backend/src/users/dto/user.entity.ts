@@ -1,7 +1,7 @@
 import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 import { Card } from '../../cards/entities/card.entity.js';
 
-@ObjectType()
+@ObjectType({ description: 'Account without password hash.' })
 export class User {
   @Field(() => ID)
   id: string;

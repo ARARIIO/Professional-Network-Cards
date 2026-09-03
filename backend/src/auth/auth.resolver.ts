@@ -11,7 +11,7 @@ export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
-  @Mutation(() => AuthPayload)
+  @Mutation(() => AuthPayload, { description: 'Create an account. Sets httpOnly cookies and returns an access token for GraphiQL.' })
   register(
     @Args('input') input: RegisterInput,
     @Context() context: GqlContext,
@@ -20,7 +20,7 @@ export class AuthResolver {
   }
 
   @Public()
-  @Mutation(() => AuthPayload)
+  @Mutation(() => AuthPayload, { description: 'Sign in. Sets httpOnly cookies and returns an access token for GraphiQL.' })
   login(
     @Args('input') input: LoginInput,
     @Context() context: GqlContext,
@@ -28,7 +28,8 @@ export class AuthResolver {
     return this.authService.login(input, context.res);
   }
 
-  @Mutation(() => Boolean)
+  @Public()
+  @Mutation(() => Boolean, { description: 'Clear access and refresh cookies. Works without a live access token.' })
   logout(@Context() context: GqlContext): boolean {
     return this.authService.logout(context.res);
   }

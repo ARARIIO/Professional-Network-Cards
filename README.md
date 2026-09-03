@@ -1,8 +1,10 @@
 # Professional Network Cards
 
-Веб-платформа цифровых визиток: регистрация, публичная карточка `/c/:slug`, контакты, QR, аналитика просмотров, CSV, фото в S3.
+Веб-платформа цифровых визиток: регистрация, публичная карточка `/c/:slug`, контакты, аналитика просмотров, CSV, фото в S3.
 
 Стек: **TypeScript**, **NestJS**, **GraphQL**, **Prisma**, **CockroachDB**, **Docker**, **S3** (локально MinIO), **React 19**, **Vite**.
+
+Документация API: [`docs/API.md`](docs/API.md). Живая схема — GraphiQL в development: http://localhost:3000/graphql (это аналог Swagger для GraphQL). OpenAPI/Swagger не подключался: основной контракт GraphQL, REST только для файлов, CSV и refresh.
 
 ## Что нужно заранее
 
@@ -53,15 +55,19 @@ npm run prisma:seed
 
 `prisma db seed` без npm может не найти `tsx`. Сид: `npm run prisma:seed`.
 
-Демо-аккаунт:
+Все сид-аккаунты: пароль `Demo12345!`.
 
-| | |
+| Email | Визитка |
 |---|---|
-| Email | `demo@pnc.local` |
-| Пароль | `Demo12345!` |
-| Публичная визитка | `/c/demo-user` |
+| `demo@pnc.local` | `/c/demo-user` (Артём Волков) |
+| `alex@pnc.local` | `/c/alex-ivanova` |
+| `maria@pnc.local` | `/c/maria-petrova` |
+| `kirill@pnc.local` | `/c/kirill-sokolov` |
+| `nina@pnc.local` | `/c/nina-orlova` |
+| `oleg@pnc.local` | `/c/oleg-kim` |
+| `draft@pnc.local` | `/c/draft-user` (приватная, публично не открывается) |
 
-Второй пользователь: `alex@pnc.local` / тот же пароль, slug `alex-ivanova`.
+У demo уже есть сохранения чужих карточек, ручной контакт без source и просмотры за 7 дней (аналитика не пустая). Повторный `npm run prisma:seed` перезаписывает контакты и просмотры этих пользователей.
 
 ## 5. Запустить API
 
@@ -128,8 +134,10 @@ GitHub Actions, Node из `.nvmrc` (сейчас 26, `check-latest` берёт �
 
 ## Схема API (кратко)
 
+Полное описание: [`docs/API.md`](docs/API.md). SDL: [`backend/src/graphql/schema.graphql`](backend/src/graphql/schema.graphql).
+
 - GraphQL — основной API (auth, карточка, контакты, аналитика).
-- REST: `GET /cards/:slug` (публичный просмотр + запись просмотра), `POST /auth/refresh`, `GET /contacts/export`, `POST /storage/avatar` (JWT), `GET /storage/files/avatars/:userId/:name`.
+- REST: `GET /cards/:slug` (публичный просмотр + запись просмотра), `POST /auth/refresh`, `GET /contacts/export`, `POST /contacts/import`, `POST /storage/avatar` (JWT), `GET /storage/files/avatars/:userId/:name`.
 
 JWT в httpOnly cookie, CORS только на origin фронтенда.
 

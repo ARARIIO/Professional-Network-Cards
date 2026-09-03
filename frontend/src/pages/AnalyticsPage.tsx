@@ -1,17 +1,17 @@
 import { AppShell } from '../components/layout/AppShell';
 import { AnalyticsBoard } from '../components/analytics/AnalyticsBoard';
 import { useAnalytics } from '../hooks/useAnalytics';
-import { useAuth } from '../hooks/useAuth';
+import { useCard } from '../hooks/useCard';
 
 export function AnalyticsPage() {
-  const { user } = useAuth();
-  const { analytics, loading, errorMessage } = useAnalytics();
-  const saves = user === null ? 0 : user.contactsCount;
+  const { card, loading: cardLoading } = useCard();
+  const { analytics, errorMessage } = useAnalytics(cardLoading || card === null);
+  const saves = card === null ? 0 : card.savesCount;
 
   return (
     <AppShell>
       {errorMessage !== null ? <p className="form-error">{errorMessage}</p> : null}
-      {analytics === null && loading === false ? (
+      {cardLoading === false && card === null ? (
         <div className="page-analytics">
           <h2 className="page-title">Аналитика</h2>
           <div className="page-sub">Просмотры публичной визитки</div>

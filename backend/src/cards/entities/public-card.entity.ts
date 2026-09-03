@@ -1,6 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
-@ObjectType()
+@ObjectType({ description: 'Public card. No id, slug, or view counters.' })
 export class PublicCard {
   @Field(() => String)
   name: string;

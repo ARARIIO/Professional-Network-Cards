@@ -18,6 +18,33 @@ export class CardRepository {
     return this.prisma.card.findUnique({ where: { slug } });
   }
 
+  findPublicExceptUser(
+    excludeUserId: string,
+    query: string | null,
+    take: number,
+  ): Promise<CardRecord[]> {
+    const term = query === null ? null : query.trim();
+    const textFilter =
+      term === null || term.length === 0
+        ? {}
+        : {
+            OR: [
+              { name: { contains: term, mode: 'insensitive' as const } },
+              { email: { contains: term, mode: 'insensitive' as const } },
+              { slug: { contains: term, mode: 'insensitive' as const } },
+            ],
+          };
+    return this.prisma.card.findMany({
+      where: {
+        isPublic: true,
+        userId: { not: excludeUserId },
+        ...textFilter,
+      },
+      orderBy: { updatedAt: 'desc' },
+      take,
+    });
+  }
+
   create(data: Prisma.CardUncheckedCreateInput): Promise<CardRecord> {
     return this.prisma.card.create({ data });
   }

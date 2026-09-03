@@ -66,6 +66,8 @@ services:
       S3_BUCKET: pnc-cards
       S3_PUBLIC_URL: http://localhost:3000/storage/files
       NODE_ENV: development
+      LOG_LEVEL: info
+      LOG_FORMAT: pretty
       PORT: "3000"
     ports:
       - "3000:3000"

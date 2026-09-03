@@ -5,10 +5,13 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import { AppModule } from './app.module.js';
 import { authRuntimeConfig } from './config/auth.config.js';
+import { emitLog, emptyLogFields } from './common/logging/emit-log.js';
+import { requestIdMiddleware } from './common/logging/request-id.middleware.js';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { logger: false });
   const config = authRuntimeConfig();
+  app.use(requestIdMiddleware);
   app.use(cookieParser());
   app.enableCors({
     origin: config.frontendOrigin,
@@ -30,6 +33,12 @@ async function bootstrap(): Promise<void> {
     }),
   );
   await app.listen(config.port);
+  emitLog({
+    level: 'info',
+    context: 'Bootstrap',
+    msg: `listening on port ${String(config.port)}`,
+    ...emptyLogFields(),
+  });
 }
 
 await bootstrap();

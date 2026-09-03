@@ -61,7 +61,8 @@ export class StorageController {
 
   @Public()
   @Get('files/avatars/:userId/:name')
-  @Header('Cache-Control', 'public, max-age=86400')
+  @Header('Cache-Control', 'public, max-age=300')
+  @Header('Cross-Origin-Resource-Policy', 'cross-origin')
   async readAvatar(
     @Param('userId') userId: string,
     @Param('name') name: string,

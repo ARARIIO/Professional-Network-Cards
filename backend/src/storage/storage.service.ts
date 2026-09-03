@@ -11,11 +11,12 @@ import { nanoid } from 'nanoid';
 import { BusinessException } from '../common/exceptions/business.exception.js';
 import { s3RuntimeConfig } from '../config/storage.config.js';
 import {
-  avatarKeyFromPublicUrl,
   avatarObjectKey,
+  avatarObjectKeyFromUrl,
   avatarPrefix,
   isAvatarFileName,
   isAvatarUserId,
+  servedAvatarUrl,
 } from './avatar-key.js';
 import { AVATAR_MAX_BYTES } from './limits.js';
 import { extensionForMime } from './mime.js';
@@ -81,8 +82,12 @@ export class StorageService {
     return `${this.publicUrl}/${key}`;
   }
 
+  servedUrl(stored: string | null): string | null {
+    return servedAvatarUrl(this.publicUrl, stored);
+  }
+
   async deleteByPublicUrl(fileUrl: string): Promise<void> {
-    const key = avatarKeyFromPublicUrl(this.publicUrl, fileUrl);
+    const key = avatarObjectKeyFromUrl(fileUrl);
     if (key === null) {
       return;
     }

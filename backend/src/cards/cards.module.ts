@@ -1,5 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { AnalyticsModule } from '../analytics/analytics.module.js';
+import { ContactsModule } from '../contacts/contacts.module.js';
 import { StorageModule } from '../storage/storage.module.js';
 import { CardsController } from './cards.controller.js';
 import { CardsResolver } from './cards.resolver.js';
@@ -8,7 +9,11 @@ import { CardRepository } from './repositories/card.repository.js';
 import { NanoidSlugGenerator } from './strategies/slug-generator.strategy.js';
 
 @Module({
-  imports: [forwardRef(() => AnalyticsModule), StorageModule],
+  imports: [
+    forwardRef(() => AnalyticsModule),
+    StorageModule,
+    forwardRef(() => ContactsModule),
+  ],
   controllers: [CardsController],
   providers: [
     CardsService,
@@ -16,6 +21,6 @@ import { NanoidSlugGenerator } from './strategies/slug-generator.strategy.js';
     CardRepository,
     NanoidSlugGenerator,
   ],
-  exports: [CardsService],
+  exports: [CardsService, CardRepository],
 })
 export class CardsModule {}

@@ -17,6 +17,7 @@ import type {
   JwtAccessPayload,
   JwtRefreshPayload,
 } from '../common/types/jwt-payload.js';
+import { normalizeEmail } from '../common/email.js';
 import { UsersService } from '../users/users.service.js';
 import { AuthPayload } from './dto/auth.payload.js';
 import { LoginInput } from './dto/login.input.js';
@@ -32,13 +33,14 @@ export class AuthService {
   ) {}
 
   async register(input: RegisterInput, res: Response): Promise<AuthPayload> {
-    const existing = await this.usersService.findByEmail(input.email);
+    const email = accountEmail(input.email);
+    const existing = await this.usersService.findByEmail(email);
     if (existing !== null) {
       throw new BusinessException('Email already registered', HttpStatus.CONFLICT);
     }
     const password = await bcrypt.hash(input.password, BCRYPT_ROUNDS);
     const user = await this.usersService.create({
-      email: input.email,
+      email,
       password,
       name: input.name,
     });
@@ -46,7 +48,8 @@ export class AuthService {
   }
 
   async login(input: LoginInput, res: Response): Promise<AuthPayload> {
-    const user = await this.usersService.findByEmail(input.email);
+    const email = accountEmail(input.email);
+    const user = await this.usersService.findByEmail(email);
     if (user === null) {
       throw new BusinessException('Invalid credentials', HttpStatus.UNAUTHORIZED);
     }
@@ -111,4 +114,12 @@ export class AuthService {
     payload.user = this.usersService.toGraphql(user);
     return payload;
   }
+}
+
+function accountEmail(raw: string): string {
+  const email = normalizeEmail(raw);
+  if (email === null) {
+    throw new BusinessException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+  }
+  return email;
 }

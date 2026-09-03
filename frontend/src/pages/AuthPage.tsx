@@ -1,18 +1,24 @@
 import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import { LoginForm } from '../components/auth/LoginForm';
 import { RegisterForm } from '../components/auth/RegisterForm';
 import { useAuth } from '../hooks/useAuth';
 import { graphqlErrorMessage } from '../utils/graphql-error';
+import { postAuthPath } from '../utils/post-auth-path';
 import type { LoginValues, RegisterValues } from '../utils/validators';
 
 export function AuthPage() {
-  const { user, login, register } = useAuth();
+  const { user, loading, login, register } = useAuth();
+  const [params] = useSearchParams();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [error, setError] = useState<string | null>(null);
 
+  if (loading) {
+    return null;
+  }
+
   if (user !== null) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={postAuthPath(params.get('next'))} replace />;
   }
 
   const onLogin = async (values: LoginValues) => {
@@ -50,7 +56,7 @@ export function AuthPage() {
           <div className="auth-sub">
             {isSignup
               ? 'Визитка будет готова за пару минут'
-              : 'Визитка, ссылка и QR — в одном месте'}
+              : 'Визитка, ссылка и контакты — в одном месте'}
           </div>
         </div>
         {isSignup ? (

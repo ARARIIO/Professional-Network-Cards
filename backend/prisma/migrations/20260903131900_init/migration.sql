@@ -33,6 +33,7 @@ CREATE TABLE "cards" (
     "backgroundColor" STRING NOT NULL DEFAULT '#2e3a4e',
     "slug" STRING NOT NULL,
     "isPublic" BOOL NOT NULL DEFAULT true,
+    "viewsCount" INT8 NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -89,16 +90,28 @@ CREATE INDEX "cards_userId_idx" ON "cards"("userId");
 CREATE INDEX "contacts_userId_idx" ON "contacts"("userId");
 
 -- CreateIndex
+CREATE INDEX "contacts_sourceCardId_idx" ON "contacts"("sourceCardId");
+
+-- Partial unique: same user cannot save the same card twice. NULL sources stay non-unique.
+CREATE UNIQUE INDEX "contacts_user_source_unique" ON "contacts"("userId", "sourceCardId") WHERE "sourceCardId" IS NOT NULL;
+
+-- CreateIndex
 CREATE INDEX "card_views_cardId_idx" ON "card_views"("cardId");
 
 -- CreateIndex
 CREATE INDEX "card_views_userId_idx" ON "card_views"("userId");
+
+-- CreateIndex
+CREATE INDEX "card_views_viewedAt_idx" ON "card_views"("viewedAt");
 
 -- AddForeignKey
 ALTER TABLE "cards" ADD CONSTRAINT "cards_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "contacts" ADD CONSTRAINT "contacts_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "contacts" ADD CONSTRAINT "contacts_sourceCardId_fkey" FOREIGN KEY ("sourceCardId") REFERENCES "cards"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "card_views" ADD CONSTRAINT "card_views_cardId_fkey" FOREIGN KEY ("cardId") REFERENCES "cards"("id") ON DELETE CASCADE ON UPDATE CASCADE;

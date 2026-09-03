@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AppShell } from '../components/layout/AppShell';
 import { CardForm } from '../components/card-editor/CardForm';
 import { useAuth } from '../hooks/useAuth';
@@ -63,8 +64,9 @@ function defaultsFromUser(
 
 export function CardEditorPage() {
   const { user } = useAuth();
-  const { card, loading, createCard, updateCard } = useCard();
+  const { card, loading, errorMessage, createCard, updateCard, deleteCard } = useCard();
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   if (user === null) {
     return null;
@@ -122,37 +124,39 @@ export function CardEditorPage() {
     if (typeof url !== 'string' || url.length === 0) {
       throw new Error('Не удалось загрузить фото');
     }
-    if (card !== null) {
-      await updateCard({
-        name: card.name,
-        role: card.role,
-        email: card.email,
-        phone: card.phone,
-        website: card.website,
-        bio: card.bio,
-        skills: card.skills,
-        linkedin: card.linkedin,
-        github: card.github,
-        twitter: card.twitter,
-        avatarUrl: url,
-        backgroundColor: card.backgroundColor,
-        isPublic: card.isPublic,
-      });
-    }
     return url;
   };
 
   return (
     <AppShell>
-      {loading ? null : (
+      {errorMessage !== null ? <p className="form-error">{errorMessage}</p> : null}
+      {loading ? null : errorMessage === null ? (
         <CardForm
-          key={card === null ? 'new' : card.id}
+          key={card === null ? `new-${user.id}` : `${user.id}-${card.id}`}
           defaultValues={defaultsFromUser(user.name, user.email, card)}
+          shareUrl={card === null ? '' : `${window.location.origin}/c/${card.slug}`}
           onSubmit={onSubmit}
           onUploadAvatar={onUploadAvatar}
           error={error}
+          onDelete={
+            card === null
+              ? null
+              : async () => {
+                  setError(null);
+                  try {
+                    await deleteCard();
+                    navigate('/dashboard');
+                  } catch (caught) {
+                    setError(
+                      caught instanceof Error
+                        ? graphqlErrorMessage(caught)
+                        : 'Не удалось удалить',
+                    );
+                  }
+                }
+          }
         />
-      )}
+      ) : null}
     </AppShell>
   );
 }

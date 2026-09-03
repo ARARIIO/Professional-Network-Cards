@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { avatarKeyFromPublicUrl, avatarObjectKey, isAvatarFileName } from './avatar-key.js';
+import { avatarKeyFromPublicUrl, avatarObjectKey, isAvatarFileName, servedAvatarUrl } from './avatar-key.js';
 
 describe('avatar keys', () => {
   it('builds object keys', () => {
@@ -14,13 +14,22 @@ describe('avatar keys', () => {
     expect(key).toBe('avatars/user_1/abc.png');
   });
 
-  it('rejects foreign URLs', () => {
+  it('parses MinIO and API URLs', () => {
     expect(
       avatarKeyFromPublicUrl(
         'http://localhost:3000/storage/files',
-        'http://cdn.example/avatars/user_1/abc.png',
+        'http://localhost:9000/pnc-cards/avatars/user_1/abc.png',
       ),
-    ).toBeNull();
+    ).toBe('avatars/user_1/abc.png');
+  });
+
+  it('rewrites stored URLs onto the public file base', () => {
+    expect(
+      servedAvatarUrl(
+        'http://localhost:3000/storage/files',
+        'http://localhost:9000/pnc-cards/avatars/user_1/abc.png',
+      ),
+    ).toBe('http://localhost:3000/storage/files/avatars/user_1/abc.png');
   });
 
   it('checks file names', () => {

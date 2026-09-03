@@ -18,6 +18,8 @@ model User {
   card     Card?
   contacts Contact[]
   views    CardView[]
+  invitesSent     ContactInvite[] @relation("InvitesSent")
+  invitesReceived ContactInvite[] @relation("InvitesReceived")
 
   @@map("users")
 }
@@ -44,12 +46,14 @@ model Card {
 
   slug     String  @unique
   isPublic Boolean @default(true)
-  viewsCount Int @default(0)
+  viewsCount Int   @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  views CardView[]
+  views   CardView[]
+  saves   Contact[]  @relation("CardSaves")
+  invites ContactInvite[]
 
   @@index([userId])
   @@map("cards")
@@ -68,10 +72,32 @@ model Contact {
   skills  String[] @default([])
 
   sourceCardId String?
-  createdAt    DateTime @default(now())
+  sourceCard   Card?     @relation("CardSaves", fields: [sourceCardId], references: [id], onDelete: SetNull)
+  createdAt    DateTime  @default(now())
 
   @@index([userId])
+  @@index([sourceCardId])
   @@map("contacts")
+}
+
+model ContactInvite {
+  id     String @id @default(cuid())
+  fromUserId String
+  fromUser   User   @relation("InvitesSent", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUserId String
+  toUser   User   @relation("InvitesReceived", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  sourceCardId String
+  sourceCard   Card   @relation(fields: [sourceCardId], references: [id], onDelete: Cascade)
+
+  status      String    @default("pending")
+  createdAt   DateTime  @default(now())
+  respondedAt DateTime?
+
+  @@unique([fromUserId, sourceCardId])
+  @@index([toUserId, status])
+  @@index([fromUserId])
+  @@map("contact_invites")
 }
 
 model CardView {

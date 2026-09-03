@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { useMutation, useQuery } from '@apollo/client/react';
+import { useQuery } from '@apollo/client/react';
 import { TopBar } from '../components/layout/TopBar';
 import { PublicCardView } from '../components/card-viewer/PublicCardView';
 import { CardSkeleton } from '../components/card-viewer/CardSkeleton';
 import { GET_CARD } from '../graphql/queries/getCard';
-import { SAVE_CONTACT } from '../graphql/mutations/saveContact';
 import type { PublicCard } from '../graphql/types';
 import { useAuth } from '../hooks/useAuth';
+import { useCard } from '../hooks/useCard';
+import { useContacts } from '../hooks/useContacts';
+import { inviteStatusForSlug, useContactInvites } from '../hooks/useContactInvites';
+import { graphqlErrorMessage } from '../utils/graphql-error';
 
 type GetCardData = {
   getCard: PublicCard | null;
@@ -16,9 +19,10 @@ type GetCardData = {
 export function PublicCardPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [saveContact] = useMutation(SAVE_CONTACT);
-  const [saved, setSaved] = useState(false);
+  const { user, loading: authLoading } = useAuth();
+  const { card: mine } = useCard();
+  const { outgoing, sendInvite, refetch: refetchInvites } = useContactInvites();
+  const { contacts } = useContacts();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const pathSlug = typeof slug === 'string' ? slug : '';
@@ -29,10 +33,21 @@ export function PublicCardPage() {
 
   const card = data === null || typeof data !== 'object' ? null : data.getCard;
   const shareUrl = `${window.location.origin}/c/${pathSlug}`;
+  const isOwn = mine !== null && mine.slug === pathSlug;
+  const inviteStatus = inviteStatusForSlug(outgoing, pathSlug);
+  const alreadySaved =
+    card !== null &&
+    contacts.some(
+      (row) =>
+        row.email !== null && row.email.toLowerCase() === card.email.toLowerCase(),
+    );
 
-  const onSave = async () => {
+  const onInvite = async () => {
+    if (authLoading) {
+      return;
+    }
     if (user === null) {
-      navigate('/auth');
+      navigate(`/auth?next=${encodeURIComponent(`/c/${pathSlug}`)}`);
       return;
     }
     if (card === null) {
@@ -41,21 +56,12 @@ export function PublicCardPage() {
     setError(null);
     setSaving(true);
     try {
-      await saveContact({
-        variables: {
-          input: {
-            name: card.name,
-            email: card.email,
-            phone: card.phone,
-            website: card.website,
-            bio: card.bio,
-            skills: card.skills,
-          },
-        },
-      });
-      setSaved(true);
+      await sendInvite(pathSlug);
+      await refetchInvites();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Не удалось сохранить');
+      setError(
+        caught instanceof Error ? graphqlErrorMessage(caught) : 'Не удалось отправить заявку',
+      );
     } finally {
       setSaving(false);
     }
@@ -92,10 +98,12 @@ export function PublicCardPage() {
           card={card}
           slug={pathSlug}
           shareUrl={shareUrl}
-          saved={saved}
+          isOwn={isOwn}
+          inviteStatus={inviteStatus}
+          alreadySaved={alreadySaved}
           saving={saving}
           error={error}
-          onSave={() => void onSave()}
+          onInvite={() => void onInvite()}
         />
       ) : null}
     </>

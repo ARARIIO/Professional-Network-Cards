@@ -21,7 +21,7 @@ export class RecentViewer {
   userAgent: string | null;
 }
 
-@ObjectType()
+@ObjectType({ description: 'Owner-only analytics for the signed-in user card.' })
 export class CardAnalytics {
   @Field(() => Int)
   totalViews: number;

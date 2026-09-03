@@ -31,4 +31,9 @@ export class SaveContactInput {
   @Field(() => [String], { nullable: true })
   @IsOptional()
   skills: string[] | null;
+
+  @Field(() => String, { nullable: true, description: 'Public card slug when saving from /c/:slug' })
+  @IsOptional()
+  @IsString()
+  sourceSlug: string | null;
 }

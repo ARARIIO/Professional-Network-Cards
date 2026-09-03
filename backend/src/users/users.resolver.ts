@@ -22,7 +22,7 @@ export class UsersResolver {
 
   @Public()
   @UseGuards(OptionalJwtGuard)
-  @Query(() => User, { nullable: true })
+  @Query(() => User, { nullable: true, description: 'Current user when a valid JWT cookie or Bearer token is present, otherwise null.' })
   async me(@OptionalUser() user: AuthUser | null): Promise<User | null> {
     if (user === null) {
       return null;

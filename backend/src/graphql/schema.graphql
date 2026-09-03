@@ -2,11 +2,18 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+"""
+Login result. token is the 24h access JWT for GraphiQL; the browser also gets httpOnly cookies.
+"""
 type AuthPayload {
+  """Access JWT. Send as Authorization: Bearer <token> in GraphiQL."""
   token: String!
   user: User!
 }
 
+"""
+Owner card. Not returned to other users; public visitors get PublicCard.
+"""
 type Card {
   avatarUrl: String
   backgroundColor: String!
@@ -20,6 +27,9 @@ type Card {
   name: String!
   phone: String
   role: String
+
+  """How many users saved this card from its public page."""
+  savesCount: Int!
   skills: [String!]!
   slug: String!
   twitter: String
@@ -29,12 +39,14 @@ type Card {
   website: String
 }
 
+"""Owner-only analytics for the signed-in user card."""
 type CardAnalytics {
   lastSevenDaysViews: [DayView!]!
   recentViewers: [RecentViewer!]!
   totalViews: Int!
 }
 
+"""Saved contact owned by the signed-in user."""
 type Contact {
   bio: String
   createdAt: DateTime!
@@ -44,6 +56,19 @@ type Contact {
   phone: String
   skills: [String!]!
   website: String
+}
+
+"""
+Request to save another user’s public card. Contact is created only after accept.
+"""
+type ContactInvite {
+  cardName: String!
+  cardSlug: String!
+  createdAt: DateTime!
+  fromEmail: String!
+  fromName: String!
+  id: ID!
+  status: String!
 }
 
 input CreateCardInput {
@@ -78,17 +103,57 @@ input LoginInput {
 }
 
 type Mutation {
+  """Create the owner card. Slug is generated server-side."""
   createCard(input: CreateCardInput!): Card!
+
+  """Delete the owner card and its stored avatar."""
   deleteCard: Boolean!
+
+  """Delete a contact owned by the signed-in user."""
   deleteContact(id: String!): Boolean!
+
+  """
+  Sign in. Sets httpOnly cookies and returns an access token for GraphiQL.
+  """
   login(input: LoginInput!): AuthPayload!
+
+  """Clear access and refresh cookies. Works without a live access token."""
   logout: Boolean!
-  recordCardView(cardId: String!): Boolean!
+
+  """
+  Record a view by internal card id (TZ extra; public GET /cards/:slug also records).
+  """
+  recordCardView(
+    """Owner Card.id, not the public slug"""
+    cardId: String!
+  ): Boolean!
+
+  """
+  Create an account. Sets httpOnly cookies and returns an access token for GraphiQL.
+  """
   register(input: RegisterInput!): AuthPayload!
+
+  """
+  Accept or decline a pending invite. Accept creates contacts both ways when both cards are public.
+  """
+  respondContactInvite(accept: Boolean!, id: String!): ContactInvite!
+
+  """
+  Save a contact without a public card (manual / CSV). Public cards require sendContactInvite.
+  """
   saveContact(input: SaveContactInput!): Contact!
+
+  """Ask the card owner for permission to save their public card."""
+  sendContactInvite(
+    """Public card slug"""
+    sourceSlug: String!
+  ): ContactInvite!
+
+  """Update the owner card. Null input fields are left unchanged."""
   updateCard(input: UpdateCardInput!): Card!
 }
 
+"""Public card. No id, slug, or view counters."""
 type PublicCard {
   avatarUrl: String
   backgroundColor: String!
@@ -104,12 +169,67 @@ type PublicCard {
   website: String
 }
 
+"""
+Public card in the signed-in directory. Includes slug for save/open; no internal id.
+"""
+type PublicCardHit {
+  alreadySaved: Boolean!
+  avatarUrl: String
+  backgroundColor: String!
+  email: String!
+
+  """none, pending, accepted, or declined"""
+  inviteStatus: String!
+  name: String!
+  role: String
+  slug: String!
+}
+
 type Query {
+  """
+  Owner-only view stats: totals, 7-day series, recent IP/user-agent rows.
+  """
   cardAnalytics: CardAnalytics!
-  getCard(slug: String!): PublicCard!
+
+  """Public card by slug. Records a view (IP + user-agent)."""
+  getCard(
+    """Share slug from /c/:slug"""
+    slug: String!
+  ): PublicCard!
+
+  """Pending requests to save your public card."""
+  incomingContactInvites: [ContactInvite!]!
+
+  """
+  Current user when a valid JWT cookie or Bearer token is present, otherwise null.
+  """
   me: User
+
+  """Signed-in user card, or null if none exists."""
   myCard: Card
-  myContacts(limit: Int, offset: Int): [Contact!]!
+
+  """Saved contacts for the signed-in user."""
+  myContacts(
+    """Page size"""
+    limit: Int
+
+    """Skip this many rows"""
+    offset: Int
+  ): [Contact!]!
+
+  """Requests you sent to save someone else’s card."""
+  outgoingContactInvites: [ContactInvite!]!
+
+  """
+  Public cards for the signed-in directory. Empty query lists recent cards excluding the viewer. Does not record views.
+  """
+  searchPublicCards(
+    """Max rows, default 20"""
+    limit: Int
+
+    """Match name, email, or slug"""
+    query: String
+  ): [PublicCardHit!]!
 }
 
 type RecentViewer {
@@ -130,6 +250,9 @@ input SaveContactInput {
   name: String!
   phone: String
   skills: [String!]
+
+  """Public card slug when saving from /c/:slug"""
+  sourceSlug: String
   website: String
 }
 
@@ -149,6 +272,7 @@ input UpdateCardInput {
   website: String
 }
 
+"""Account without password hash."""
 type User {
   card: Card
   contactsCount: Int!

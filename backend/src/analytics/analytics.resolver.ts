@@ -15,7 +15,7 @@ export class AnalyticsResolver {
     private readonly cardsService: CardsService,
   ) {}
 
-  @Query(() => CardAnalytics)
+  @Query(() => CardAnalytics, { description: 'Owner-only view stats: totals, 7-day series, recent IP/user-agent rows.' })
   async cardAnalytics(@CurrentUser() user: AuthUser): Promise<CardAnalytics> {
     const card = await this.cardsService.myCard(user.id);
     if (card === null) {

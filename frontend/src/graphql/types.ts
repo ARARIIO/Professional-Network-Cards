@@ -16,6 +16,7 @@ export type Card = {
   slug: string;
   isPublic: boolean;
   viewsCount: number;
+  savesCount: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -33,6 +34,27 @@ export type PublicCard = {
   linkedin: string | null;
   github: string | null;
   twitter: string | null;
+};
+
+export type PublicCardHit = {
+  slug: string;
+  name: string;
+  role: string | null;
+  email: string;
+  avatarUrl: string | null;
+  backgroundColor: string;
+  alreadySaved: boolean;
+  inviteStatus: string;
+};
+
+export type ContactInvite = {
+  id: string;
+  status: string;
+  fromName: string;
+  fromEmail: string;
+  cardName: string;
+  cardSlug: string;
+  createdAt: string;
 };
 
 export type User = {
@@ -94,6 +116,7 @@ export const CARD_FIELDS = `
   slug
   isPublic
   viewsCount
+  savesCount
   createdAt
   updatedAt
 `;

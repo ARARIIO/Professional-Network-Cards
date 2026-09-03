@@ -147,6 +147,15 @@ a.primary-btn:hover {
 }
 
 a.ghost-btn,
+a.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+a.ghost-btn,
 a.ghost-btn:hover {
   color: inherit;
 }
@@ -158,15 +167,24 @@ a.ghost-btn:hover {
 }
 
 .sidebar {
+  position: sticky;
+  top: 52px;
+  align-self: start;
+  z-index: 15;
+  height: calc(100vh - 52px);
   border-right: 1px solid #ebebed;
   background: #ffffff;
   padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
 .sidebar-nav {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  flex: 1;
 }
 
 .nav-item {
@@ -195,15 +213,26 @@ a.ghost-btn:hover {
   padding-top: 16px;
   border-top: 1px solid #f0f0f2;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
   width: 100%;
-  border-left: none;
-  border-right: none;
-  border-bottom: none;
-  background: none;
-  cursor: pointer;
   text-align: left;
+}
+
+.sidebar-account-meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.nav-logout {
+  color: #c0392b;
+  padding: 4px 0 0;
+}
+
+.nav-logout:hover {
+  color: #c0392b;
 }
 
 .avatar-sm {
@@ -217,6 +246,7 @@ a.ghost-btn:hover {
   font-size: 11.5px;
   color: #5a5a62;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .account-name {
@@ -321,6 +351,29 @@ a.ghost-btn:hover {
   height: 44px;
   border-radius: 8px;
   flex-shrink: 0;
+}
+
+.dash-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f1f3;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4a4a52;
+}
+
+.dash-avatar img,
+.avatar-sm img,
+.avatar-md img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .person-name {
@@ -727,13 +780,10 @@ a.ghost-btn:hover {
 
 .public-col {
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
 }
 
 .public-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   margin-bottom: 12px;
 }
 
@@ -747,24 +797,40 @@ a.ghost-btn:hover {
   overflow: hidden;
 }
 
+.card-face.is-compact {
+  position: sticky;
+  top: 80px;
+}
+
 .card-banner {
-  height: 96px;
+  height: 108px;
+}
+
+.card-face.is-compact .card-banner {
+  height: 72px;
 }
 
 .card-inner {
   padding: 0 24px 24px;
 }
 
+.card-face.is-compact .card-inner {
+  padding: 0 18px 18px;
+}
+
 .card-top {
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
-  margin-top: -36px;
+  margin-top: -40px;
+}
+
+.card-face.is-compact .card-top {
+  margin-top: -28px;
 }
 
 .card-avatar {
-  width: 72px;
-  height: 72px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   border: 3px solid #ffffff;
   background: #f1f1f3;
@@ -777,6 +843,12 @@ a.ghost-btn:hover {
   overflow: hidden;
 }
 
+.card-face.is-compact .card-avatar {
+  width: 56px;
+  height: 56px;
+  font-size: 17px;
+}
+
 .card-avatar img,
 .preview-avatar img {
   width: 100%;
@@ -785,41 +857,63 @@ a.ghost-btn:hover {
   border-radius: 50%;
 }
 
-.qr-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 26px;
-  padding: 0 10px;
-  border-radius: 8px;
-  background: #ffffff;
-  border: 1px solid #ebebed;
-  font-size: 12px;
-  color: #6b6b70;
-}
-
 .card-name {
-  margin: 18px 0 0;
+  margin: 16px 0 0;
 }
 
 .card-name h1 {
   margin: 0;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 500;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.card-face.is-compact .card-name h1 {
+  font-size: 17px;
 }
 
 .card-role {
-  margin-top: 4px;
+  margin-top: 6px;
   font-size: 14px;
+  line-height: 1.4;
   color: #6b6b70;
+}
+
+.card-face.is-compact .card-role {
+  font-size: 13px;
 }
 
 .card-bio {
   margin: 16px 0 0;
+  padding: 0 0 0 12px;
+  border-left: 2px solid #ebebed;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.65;
   color: #3f3f45;
+}
+
+.card-face.is-compact .card-bio {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.card-section {
+  margin-top: 22px;
+}
+
+.card-face.is-compact .card-section {
+  margin-top: 16px;
+}
+
+.card-section-label {
+  margin-bottom: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8a8a90;
 }
 
 .skill-pill {
@@ -828,12 +922,6 @@ a.ghost-btn:hover {
   background: #f2f3f5;
   color: #4a4d55;
   font-size: 12.5px;
-}
-
-.rule {
-  height: 1px;
-  background: #f0f0f2;
-  margin: 22px 0;
 }
 
 .contact-list {
@@ -845,65 +933,86 @@ a.ghost-btn:hover {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 11px 12px;
+  padding: 10px 12px;
   border: 1px solid #ebebed;
   border-radius: 8px;
   background: #ffffff;
   color: inherit;
-  cursor: pointer;
   text-align: left;
 }
 
-.contact-row:hover {
-  border-color: #dcdce0;
-  background: #fcfcfd;
+a.contact-row {
+  cursor: pointer;
 }
 
-.contact-tag {
-  width: 22px;
-  text-align: center;
-  font-family: 'IBM Plex Mono', monospace;
+a.contact-row:hover {
+  border-color: #dcdce0;
+  background: #fcfcfd;
+  color: inherit;
+}
+
+.contact-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: #f2f3f5;
+  color: #6b6b70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.contact-label {
   font-size: 11px;
-  color: #9a9aa0;
+  color: #8a8a90;
 }
 
 .contact-value {
-  flex: 1;
   font-size: 13.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .contact-action {
+  flex-shrink: 0;
   font-size: 12px;
   color: #8a8a90;
 }
 
-.socials {
+.card-socials {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  margin-top: 16px;
 }
 
-.social-dot {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
+.card-social {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
   border: 1px solid #ebebed;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11.5px;
-  color: #5a5a62;
+  background: #ffffff;
+  font-size: 12.5px;
+  color: #3f3f45;
 }
 
-.social-dot:hover {
+a.card-social:hover {
   border-color: #dcdce0;
-  color: #5a5a62;
+  color: #18181a;
 }
 
-.qr-box {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+.share-box {
   margin-top: 22px;
   padding: 14px;
   border: 1px solid #ebebed;
@@ -911,15 +1020,22 @@ a.ghost-btn:hover {
   background: #fcfcfd;
 }
 
-.qr-frame {
-  width: 76px;
-  height: 76px;
-  border-radius: 6px;
-  background: #ffffff;
+.share-title {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.share-hint {
+  margin-top: 3px;
+  font-size: 12.5px;
+  color: #8a8a90;
+}
+
+.share-actions {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .save-btn {
@@ -934,29 +1050,22 @@ a.ghost-btn:hover {
   color: #ffffff;
 }
 
-.vcf-note {
-  margin-top: 10px;
-  text-align: center;
-  font-size: 12px;
-  color: #a3a3a8;
-}
-
 .shimmer {
   animation: shimmer 1.4s ease-in-out infinite;
 }
 
 .sk-banner {
-  height: 96px;
+  height: 108px;
   background: #f1f1f3;
 }
 
 .sk-avatar {
-  width: 72px;
-  height: 72px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   background: #ececee;
   border: 3px solid #fff;
-  margin-top: -36px;
+  margin-top: -40px;
 }
 
 .sk-col {
@@ -1086,6 +1195,7 @@ a.ghost-btn:hover {
   font-size: 12px;
   color: #5a5a62;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .contact-main {
@@ -1106,6 +1216,14 @@ a.ghost-btn:hover {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 12px;
   color: #a3a3a8;
+}
+
+.contact-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .metrics {
@@ -1268,6 +1386,10 @@ a.ghost-btn:hover {
   }
 
   .sidebar {
+    position: sticky;
+    top: 52px;
+    z-index: 15;
+    height: auto;
     border-right: none;
     border-bottom: 1px solid #ebebed;
   }
