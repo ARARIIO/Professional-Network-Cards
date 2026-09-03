@@ -17,9 +17,8 @@ import {
   isAvatarFileName,
   isAvatarUserId,
 } from './avatar-key.js';
+import { AVATAR_MAX_BYTES } from './limits.js';
 import { extensionForMime } from './mime.js';
-
-const MAX_BYTES = 2 * 1024 * 1024;
 
 @Injectable()
 export class StorageService {
@@ -57,8 +56,8 @@ export class StorageService {
     body: Buffer,
     mimetype: string,
   ): Promise<string> {
-    if (body.length === 0 || body.length > MAX_BYTES) {
-      throw new BusinessException('Image must be between 1 byte and 2 MB');
+    if (body.length === 0 || body.length > AVATAR_MAX_BYTES) {
+      throw new BusinessException('Image must be between 1 byte and 50 MB');
     }
     const ext = extensionForMime(mimetype);
     if (ext === null) {

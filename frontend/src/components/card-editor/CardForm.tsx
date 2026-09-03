@@ -63,7 +63,7 @@ export function CardForm({ defaultValues, onSubmit, onUploadAvatar, error }: Pro
                 }
               }}
             />
-            <div className="field-hint">JPEG, PNG или WebP, до 2 МБ</div>
+            <div className="field-hint">JPEG, PNG или WebP, до 50 МБ</div>
             {dropError !== null ? <div className="field-error">{dropError}</div> : null}
           </div>
           <div>

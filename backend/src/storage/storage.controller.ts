@@ -16,6 +16,7 @@ import { memoryStorage } from 'multer';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 import { Public } from '../common/decorators/public.decorator.js';
 import type { AuthUser } from '../common/types/auth-user.js';
+import { AVATAR_MAX_BYTES } from './limits.js';
 import { StorageService } from './storage.service.js';
 
 type MemoryUpload = {
@@ -32,7 +33,7 @@ export class StorageController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(),
-      limits: { fileSize: 2 * 1024 * 1024 },
+      limits: { fileSize: AVATAR_MAX_BYTES },
     }),
   )
   async uploadAvatar(
@@ -41,7 +42,7 @@ export class StorageController {
       new ParseFilePipe({
         fileIsRequired: true,
         validators: [
-          new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
+          new MaxFileSizeValidator({ maxSize: AVATAR_MAX_BYTES }),
           new FileTypeValidator({
             fileType: /(image\/jpeg|image\/png|image\/webp)/,
           }),
