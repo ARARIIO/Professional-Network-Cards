@@ -3,7 +3,7 @@ import { Navigate, useSearchParams } from 'react-router-dom';
 import { LoginForm } from '../components/auth/LoginForm';
 import { RegisterForm } from '../components/auth/RegisterForm';
 import { useAuth } from '../hooks/useAuth';
-import { graphqlErrorMessage } from '../utils/graphql-error';
+import { graphqlErrorMessage, WRONG_CREDENTIALS } from '../utils/graphql-error';
 import { postAuthPath } from '../utils/post-auth-path';
 import type { LoginValues, RegisterValues } from '../utils/validators';
 
@@ -26,7 +26,9 @@ export function AuthPage() {
     try {
       await login(values);
     } catch (caught) {
-      setError(caught instanceof Error ? graphqlErrorMessage(caught) : 'Не удалось войти');
+      setError(
+        caught instanceof Error ? graphqlErrorMessage(caught) : WRONG_CREDENTIALS,
+      );
     }
   };
 

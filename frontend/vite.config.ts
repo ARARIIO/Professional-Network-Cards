@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/graphql': { target: 'http://localhost:3000', changeOrigin: true },
-      '/auth': { target: 'http://localhost:3000', changeOrigin: true },
+      '/auth/refresh': { target: 'http://localhost:3000', changeOrigin: true },
       '/cards': { target: 'http://localhost:3000', changeOrigin: true },
       '/storage': { target: 'http://localhost:3000', changeOrigin: true },
       '/contacts': { target: 'http://localhost:3000', changeOrigin: true },
@@ -16,7 +16,7 @@ export default defineConfig({
   preview: {
     proxy: {
       '/graphql': { target: 'http://localhost:3000', changeOrigin: true },
-      '/auth': { target: 'http://localhost:3000', changeOrigin: true },
+      '/auth/refresh': { target: 'http://localhost:3000', changeOrigin: true },
       '/cards': { target: 'http://localhost:3000', changeOrigin: true },
       '/storage': { target: 'http://localhost:3000', changeOrigin: true },
       '/contacts': { target: 'http://localhost:3000', changeOrigin: true },

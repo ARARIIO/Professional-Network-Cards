@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
 export const EMAIL_HINT = 'Введите email в формате name@company.com';
+export const NAME_HINT = 'Введите имя';
+export const PASSWORD_HINT = 'Пароль не короче 8 символов';
 
 export const CARD_SWATCHES = [
   '#2e3a4e',
@@ -15,13 +17,13 @@ export const DEFAULT_CARD_BG = '#2e3a4e';
 
 export const registerSchema = z.object({
   email: z.string().email(EMAIL_HINT),
-  password: z.string().min(8),
-  name: z.string().min(1),
+  password: z.string().min(8, PASSWORD_HINT),
+  name: z.string().min(1, NAME_HINT),
 });
 
 export const loginSchema = z.object({
   email: z.string().email(EMAIL_HINT),
-  password: z.string().min(8),
+  password: z.string().min(8, PASSWORD_HINT),
 });
 
 export const cardSchema = z.object({
