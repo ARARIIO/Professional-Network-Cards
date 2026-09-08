@@ -19,8 +19,12 @@
       "destination": "https://pnc-api.onrender.com/storage/:path*"
     },
     {
-      "source": "/contacts/:path*",
-      "destination": "https://pnc-api.onrender.com/contacts/:path*"
+      "source": "/contacts/export",
+      "destination": "https://pnc-api.onrender.com/contacts/export"
+    },
+    {
+      "source": "/contacts/import",
+      "destination": "https://pnc-api.onrender.com/contacts/import"
     },
     {
       "source": "/health",

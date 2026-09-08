@@ -92,7 +92,7 @@ DATABASE_URL='<cloud>' npm run prisma:seed
 
 1. Import репозитория. **Root Directory:** `frontend`. Node 24 (`frontend/package.json` `engines`).
 2. Env для production можно не задавать: GraphQL = `/graphql`, REST = тот же origin ([`frontend/src/constants.ts`](../frontend/src/constants.ts)).
-3. Другой host API → все destination API в [`frontend/vercel.json`](../frontend/vercel.json) и новый деплой фронта. На Vercel проксируется только `POST /auth/refresh`, не страница `/auth` (иначе Nest отвечает `Cannot GET /auth/`).
+3. Другой host API → все destination API в [`frontend/vercel.json`](../frontend/vercel.json) и новый деплой фронта. На Vercel проксируются только API-эндпоинты (например `POST /auth/refresh`, `/contacts/export`, `/contacts/import`), а не целые страницы `/auth` или `/contacts` (иначе Nest отвечает `Cannot GET /auth/` или `Cannot GET /contacts/`).
 
 Превью-ветки (`*-arari-projects.vercel.app`) после этого отдают SPA. GraphQL идёт same-origin через rewrite, CORS к `FRONTEND_ORIGIN` для них не нужен. Демо удобнее на проде: [professional-network-cards-arari-projects.vercel.app](https://professional-network-cards-arari-projects.vercel.app).
 
@@ -113,7 +113,7 @@ chmod +x scripts/smoke-prod.sh
 
 ## Локальная имитация прокси
 
-Vite проксирует `/graphql`, `/auth/refresh`, `/cards`, `/storage`, `/contacts`, `/health` на `localhost:3000`. Как на Vercel — в **локальном** `frontend/.env` (файл в git не попадает):
+Vite проксирует `/graphql`, `/auth/refresh`, `/cards`, `/storage`, `/contacts/export`, `/contacts/import`, `/health` на `localhost:3000`. Как на Vercel — в **локальном** `frontend/.env` (файл в git не попадает):
 
 ```
 VITE_GRAPHQL_URL=/graphql
