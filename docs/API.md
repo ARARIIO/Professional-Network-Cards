@@ -1,5 +1,7 @@
 # API
 
+Прод (Vercel rewrite → Render): см. [`DEPLOY.md`](DEPLOY.md).
+
 Продуктовый API — **GraphQL** (`POST /graphql`). Интерактивная документация: **GraphiQL** в development — [http://localhost:3000/graphql](http://localhost:3000/graphql). Схема: [`backend/src/graphql/schema.graphql`](../backend/src/graphql/schema.graphql).
 
 Swagger / OpenAPI не используется: CRUD визиток, контактов и аналитики идёт через GraphQL, а не через REST. REST оставлен только для того, что GraphQL не покрывает (файл, CSV, refresh-cookie, публичный GET).

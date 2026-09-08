@@ -141,6 +141,12 @@ GitHub Actions, Node из `.nvmrc` (сейчас 26, `check-latest` берёт �
 
 JWT в httpOnly cookie, CORS только на origin фронтенда.
 
+## Деплой (Vercel + бесплатный API)
+
+Фронт — Vercel, API — Render (Docker), база — CockroachDB Cloud Free, файлы — Cloudflare R2. Cookie остаются на домене Vercel за счёт rewrite на Render.
+
+Пошагово: [`docs/DEPLOY.md`](docs/DEPLOY.md). Имя сервиса Render: `pnc-api` (см. [`frontend/vercel.json`](frontend/vercel.json)).
+
 ## Остановка
 
 ```bash

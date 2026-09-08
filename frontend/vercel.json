@@ -1,0 +1,29 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/graphql",
+      "destination": "https://pnc-api.onrender.com/graphql"
+    },
+    {
+      "source": "/auth/:path*",
+      "destination": "https://pnc-api.onrender.com/auth/:path*"
+    },
+    {
+      "source": "/cards/:path*",
+      "destination": "https://pnc-api.onrender.com/cards/:path*"
+    },
+    {
+      "source": "/storage/:path*",
+      "destination": "https://pnc-api.onrender.com/storage/:path*"
+    },
+    {
+      "source": "/contacts/:path*",
+      "destination": "https://pnc-api.onrender.com/contacts/:path*"
+    },
+    {
+      "source": "/health",
+      "destination": "https://pnc-api.onrender.com/health"
+    }
+  ]
+}

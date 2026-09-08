@@ -3,6 +3,26 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    proxy: {
+      '/graphql': { target: 'http://localhost:3000', changeOrigin: true },
+      '/auth': { target: 'http://localhost:3000', changeOrigin: true },
+      '/cards': { target: 'http://localhost:3000', changeOrigin: true },
+      '/storage': { target: 'http://localhost:3000', changeOrigin: true },
+      '/contacts': { target: 'http://localhost:3000', changeOrigin: true },
+      '/health': { target: 'http://localhost:3000', changeOrigin: true },
+    },
+  },
+  preview: {
+    proxy: {
+      '/graphql': { target: 'http://localhost:3000', changeOrigin: true },
+      '/auth': { target: 'http://localhost:3000', changeOrigin: true },
+      '/cards': { target: 'http://localhost:3000', changeOrigin: true },
+      '/storage': { target: 'http://localhost:3000', changeOrigin: true },
+      '/contacts': { target: 'http://localhost:3000', changeOrigin: true },
+      '/health': { target: 'http://localhost:3000', changeOrigin: true },
+    },
+  },
   build: {
     rolldownOptions: {
       output: {
