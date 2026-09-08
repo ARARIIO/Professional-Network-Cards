@@ -1,6 +1,6 @@
 # API
 
-Прод (Vercel rewrite → Render): см. [`DEPLOY.md`](DEPLOY.md).
+Прод: фронт на Vercel проксирует `/graphql` и REST на Render (`pnc-api`). Секреты и URL контура: [`DEPLOY.md`](DEPLOY.md). Локально база REST — `http://localhost:3000`.
 
 Продуктовый API — **GraphQL** (`POST /graphql`). Интерактивная документация: **GraphiQL** в development — [http://localhost:3000/graphql](http://localhost:3000/graphql). Схема: [`backend/src/graphql/schema.graphql`](../backend/src/graphql/schema.graphql).
 

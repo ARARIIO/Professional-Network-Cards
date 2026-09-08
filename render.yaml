@@ -21,7 +21,7 @@ services:
       - key: JWT_REFRESH_SECRET
         generateValue: true
       - key: FRONTEND_ORIGIN
-        sync: false
+        value: https://professional-network-cards-arari-projects.vercel.app
       - key: S3_ENDPOINT
         sync: false
       - key: S3_REGION

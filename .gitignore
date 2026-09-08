@@ -15,13 +15,43 @@ build/
 coverage/
 *.tsbuildinfo
 
-# Environment and secrets
+# Environment and secrets — never commit live keys, tokens, or connection strings
 .env
 .env.*
 !.env.example
+!.env.*.example
+.envrc
+.dev.vars
+.dev.vars.*
+docker-compose.override.yml
+
+mcp.json
+.mcp.json
+credentials.json
+secrets.json
+serviceAccount*.json
+*-service-account.json
+auth.json
+*.secret
+*.secrets
+*.token
+secrets/
+.secrets/
+
 *.pem
 *.p12
+*.pfx
 *.key
+*.crt
+*.cer
+*.der
+id_rsa
+id_ed25519
+*.ppk
+
+.wrangler/
+.mf/
+.cloudflare/
 
 # Logs and debug
 logs/

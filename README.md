@@ -27,7 +27,7 @@ cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env
 ```
 
-Для локального запуска значения из example уже подходят (Cockroach на `localhost:26257`, MinIO на `9000`, API на `3000`).
+Для локального запуска значения из example уже подходят (Cockroach на `localhost:26257`, MinIO на `9000`, API на `3000`). Файлы `.env` в git не попадают ([`.gitignore`](.gitignore)): туда же не кладите прод-`DATABASE_URL`, JWT и ключи R2. Шаблоны — только `.env.example`.
 
 ## 3. Поднять Docker: база и S3
 
@@ -143,9 +143,9 @@ JWT в httpOnly cookie, CORS только на origin фронтенда.
 
 ## Деплой (Vercel + бесплатный API)
 
-Фронт — Vercel, API — Render (Docker), база — CockroachDB Cloud Free, файлы — Cloudflare R2. Cookie остаются на домене Vercel за счёт rewrite на Render.
+Фронт — Vercel, API — Render (Docker), база — CockroachDB Cloud, файлы — Cloudflare R2. Cookie на домене Vercel за счёт rewrite на Render.
 
-Пошагово: [`docs/DEPLOY.md`](docs/DEPLOY.md). Имя сервиса Render: `pnc-api` (см. [`frontend/vercel.json`](frontend/vercel.json)).
+Демо: [фронт](https://professional-network-cards-arari-projects.vercel.app), API [pnc-api.onrender.com](https://pnc-api.onrender.com/health). Пошагово и куда класть секреты: [`docs/DEPLOY.md`](docs/DEPLOY.md). Имя сервиса: `pnc-api` ([`frontend/vercel.json`](frontend/vercel.json)).
 
 ## Остановка
 
