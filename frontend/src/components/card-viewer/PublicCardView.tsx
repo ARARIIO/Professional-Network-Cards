@@ -68,9 +68,6 @@ export function PublicCardView({
   return (
     <div className="public-wrap">
       <div className="public-col">
-        <div className="public-meta">
-          <span className="public-url">networkcards.io/{slug}</span>
-        </div>
         <CardFace card={card} compact={false} interactive={true}>
           <div className="share-box">
             <div className="share-title">Поделиться визиткой</div>

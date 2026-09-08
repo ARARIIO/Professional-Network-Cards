@@ -84,7 +84,9 @@ export function DashboardPage() {
                 </div>
               </div>
               <div className="link-row">
-                <div className="link-box">networkcards.io/{card.slug}</div>
+                <div className="link-box">
+                  {publicUrl.replace(/^https?:\/\//, '')}
+                </div>
                 <button
                   type="button"
                   className="ghost-btn"
