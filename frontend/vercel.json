@@ -7,8 +7,8 @@
       "destination": "https://pnc-api.onrender.com/graphql"
     },
     {
-      "source": "/auth/:path*",
-      "destination": "https://pnc-api.onrender.com/auth/:path*"
+      "source": "/auth/refresh",
+      "destination": "https://pnc-api.onrender.com/auth/refresh"
     },
     {
       "source": "/cards/:path*",
@@ -25,6 +25,10 @@
     {
       "source": "/health",
       "destination": "https://pnc-api.onrender.com/health"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/index.html"
     }
   ]
 }
